@@ -6,12 +6,6 @@ var isIE = !!global.msCrypto,
     
 if(globalCrypto) subtle = globalCrypto.subtle;
 
-//// NUR ZUM TESTEN
-//isIE = false;
-//isW3C = false;
-//globalCrypto = undefined;
-//subtle = undefined;
-
 /**
  * Creates a new CryptoKey object.
  * 
