@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PBKDF2 tests</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="../dist/web-crypto-promise.min.js"></script>
+  </head>
+  <body>
+    <div>PBKDF2 tests</div>
+    <script>
+      var password = new Uint8Array([0,1,2,3,4,5,6,7,8,9]);
+      var salt = new Uint8Array([0,1,2,3,4,5,6,7,8,9]);
+      
+      // Generate base key from password
+      webCrypto.subtle.importKey(
+        'raw',
+        password,
+        {name: 'PBKDF2'},
+        false,
+        ['deriveKey']
+      ).then(function(baseKey) {
+        
+        // Derive key
+        return webCrypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt: salt,
+            iterations: 10000,
+            hash: {name: 'SHA-256'}
+          }, 
+          baseKey,
+          {
+            name: 'AES-GCM',
+            length: 256
+          },
+          true,
+          ['encrypt', 'decrypt']
+        );
+      }).then(function(key) {
+        return webCrypto.subtle.exportKey('jwk', key);
+      }).then(function(jwk) {
+        console.log('Poly derived key:');
+        console.log(jwk);
+        
+        // Generate base key native
+        return crypto.subtle.importKey(
+          'raw',
+          password,
+          {name: 'PBKDF2'},
+          false,
+          ['deriveKey']
+        );
+      }).then(function(baseKey) {
+        
+        // Derive key native
+        return crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt: salt,
+            iterations: 10000,
+            hash: {name: 'SHA-256'}
+          }, 
+          baseKey,
+          {
+            name: 'AES-GCM',
+            length: 256
+          },
+          true,
+          ['encrypt', 'decrypt']
+        );
+      }).then(function(key) {
+        return crypto.subtle.exportKey('jwk', key);  
+        
+      }).then(function(jwk) {
+        console.log('Native derived key:');
+        console.log(jwk);
+        
+        // Test shortcut pbkdf2
+        return webCrypto.ext.pbkdf2.deriveKeySha256(
+          {
+            name: 'AES-GCM',
+            length: 256
+          },
+          true,
+          ['decrypt', 'encrypt'],
+          password,
+          salt,
+          10000);
+        
+      }).then(function(key) {
+        return webCrypto.subtle.exportKey('jwk', key);
+      }).then(function(jwk) {
+        console.log('Poly derived key (shortcut):');
+        console.log(jwk);
+      }).catch(function(err) {
+        console.error(err);
+      });
+    </script>
+  </body>
+</html>

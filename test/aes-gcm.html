@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AES-GMC tests</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="../dist/web-crypto-promise.min.js"></script>
+  </head>
+  <body>
+    <div>AES-GMC tests</div>
+    <script>
+      var secret = new Uint8Array([0,1,2,3,4,5,6,7,8,9]);
+      var iv = new Uint8Array(12);
+      webCrypto.getRandomValues(iv);
+      var key;
+      var jwkKey;
+      var polyKey;
+      var nativeKey;
+      var encryptedPoly;
+      var encryptedNative;
+      var polyRsaKey;
+      
+      console.log('Secret:');
+      console.log(secret);
+      
+      // Generate AES-GCM key
+      webCrypto.subtle.generateKey(
+              {
+                name: "AES-GCM",
+                length: 256
+              },
+              true,
+              ['encrypt', 'decrypt', 'wrapKey', 'unwrapKey']
+       ).then(function(result){
+        key = result;
+        
+        // Export AES-GCM key to JWK format
+        return webCrypto.subtle.exportKey('jwk', key);
+        
+      }).then(function(result) {
+        jwkKey = result;
+        
+        // Import JWK AES-GCM key
+        return webCrypto.subtle.importKey(
+          "jwk",
+          jwkKey,
+          {
+            name: "AES-GCM"
+          },
+          true,
+          ['encrypt', 'decrypt']);
+      }).then(function(result) {
+        polyKey = result;
+        
+        // Import JWK with native Web Crypto API
+        return crypto.subtle.importKey(
+          "jwk",
+          jwkKey,
+          {
+            name: "AES-GCM"
+          },
+          true,
+          ['encrypt', 'decrypt']);
+      }).then(function(result) {
+        nativeKey = result;
+        
+        // Encrypting poly
+        return webCrypto.subtle.encrypt(
+          {
+            name: "AES-GCM",
+            iv: iv
+          },
+          polyKey,
+          secret);
+      }).then(function(result) {
+        encryptedPoly = result;
+        
+        // Encrypting native
+        return crypto.subtle.encrypt(
+          {
+            name: "AES-GCM",
+            iv: iv
+          },
+          nativeKey,
+          secret);
+      }).then(function(result) {
+        encryptedNative = result;
+          
+        // Decrypting poly -> poly
+        return webCrypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv: iv
+          },
+          polyKey,
+          encryptedPoly);
+      }).then(function(result) {
+        console.log('Decrypted poly -> poly:');
+        console.log(new Uint8Array(result));
+        
+        // Decrypt poly -> native
+        return crypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv: iv
+          },
+          nativeKey,
+          encryptedPoly);
+          
+      }).then(function(result) {
+        console.log('Decrypted poly -> native:');
+        console.log(new Uint8Array(result));
+        
+        // Decrypting native -> native
+        return crypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv: iv
+          },
+          nativeKey,
+          encryptedNative);
+      }).then(function(result) {
+        console.log('Decrypted native -> native:');
+        console.log(new Uint8Array(result));
+        
+        // Decrypting native -> poly
+        return webCrypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv: iv
+          },
+          polyKey,
+          encryptedNative);
+      }).then(function(result) {
+        console.log('Decrypted native -> poly');
+        console.log(new Uint8Array(result));
+        
+        return webCrypto.subtle.exportKey('raw', polyKey);
+        
+      }).then(function(result) {
+        console.log('Raw key:');
+        console.log(new Uint8Array(result));
+        
+        return webCrypto.subtle.importKey(
+          'raw', 
+          result,
+          {
+            name: "AES-GCM"
+          },
+          false,
+          ['encrypt', 'decrypt']);
+      }).then(function(result) {
+        console.log('Raw imported:');
+        console.log(result);
+        
+        // Generate RSA key
+        return webCrypto.subtle.generateKey(
+          {
+            name: "RSA-OAEP",
+            modulusLength: 2048,
+            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+            hash: {name: "SHA-256"} 
+          },
+          true,
+          ['encrypt', 'decrypt']);
+      }).then(function(rsaKey) {
+        polyRsaKey = rsaKey;
+        // Export private rsa key
+        return webCrypto.subtle.exportKey('jwk', polyRsaKey.privateKey);
+        
+      }).then(function(jwk) {
+        console.log('private rsa key (jwk):');
+        console.log(jwk);
+        
+        // Wrap private rsa key
+        return webCrypto.subtle.wrapKey(
+          "jwk",
+          polyRsaKey.privateKey,
+          key,
+          {
+            name: 'AES-GCM',
+            iv: iv
+          });
+      }).then(function(wrappedKey) {
+        console.log('Wrapped private RSA key:');
+        console.log(wrappedKey);
+        
+        // Unwrap private rsa key
+        return webCrypto.subtle.unwrapKey(
+          'jwk',
+          wrappedKey,
+          key,
+          {
+            name: 'AES-GCM',
+            iv: iv
+          },
+          {
+            name: 'RSA-OAEP',
+            hash: {name: 'SHA-256'}
+          },
+          true,
+          ['decrypt']);
+      }).then(function(unwrappedKey) {
+        console.log('Unwrapped private RSA key:');
+        console.log(unwrappedKey);
+        
+        // Export private RSA key
+        return webCrypto.subtle.exportKey('jwk', unwrappedKey);
+        
+      }).then(function(jwk) {
+        console.log('Unwrapped private RSA key (jwk):');
+        console.log(jwk);
+      }).catch(function(err) {
+        console.error(err);
+      });
+    </script>
+  </body>
+</html>

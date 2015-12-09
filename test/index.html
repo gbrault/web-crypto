@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="../dist/web-crypto-promise.min.js"></script>
+    <style>
+      body {
+       font-family: sans-serif, arial;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 8px;
+        border: 1px solid #000;
+      }
+      .unsupported {
+        background-color: #aaaaaa;
+      }
+      .result-sign {
+        cursor: pointer;
+        color: #fff;
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        text-align: center;
+        margin: 2px;
+      }
+      .result-sign.ok {
+        background-color: green;
+      }
+      .result-sign.err {
+        background-color: red;
+      }
+      .details {
+        display: none;
+        position: absolute;
+        padding: 4px;
+      }
+      .details.ok {
+        background-color: lightgreen;
+        border: 1px solid green;
+      }
+      .details.err {
+        background-color: pink;
+        border: 1px solid red;
+      }
+      .result-sign:hover + .details {
+        display: inline-block;
+      }
+    </style>
+    <script>
+      function findCell(alg, op) {
+        return document.querySelector('#' + alg + ' .' + op);
+      }
+      
+      function toString(ob, depth) {
+        var rec = depth || 1;
+        
+        var ident = '';
+        for(var i = 0; i < rec; i++) {
+          ident = ident + '&nbsp;&nbsp;&nbsp;&nbsp';
+        }
+        
+        var str = '';
+        //str = str + ob.toString();
+        str = str + ob;
+        if(ob instanceof Object && Object.keys(ob)) {
+          for(k in ob) {
+              str = str + '<br />' + ident + k + ': ' + toString(ob[k], rec + 1);
+          }
+        }
+        return str;
+      }
+      
+      function manually(alg, op, fn) {
+        var cell = findCell(alg, op);
+        var a = document.createElement('a');
+        a.innerHTML = 'Run test (slow)';
+        a.href = '#';
+        a.addEventListener('click', function(evt) {
+          evt.preventDefault();
+          evt.target.style.display = 'none';
+          
+          fn.call();
+          
+        }, false);
+        cell.appendChild(a);
+      }
+      
+      function ok(alg, op, shortmsg) {
+        return function(result) {
+          var cell = findCell(alg, op);
+
+          // Sign
+          var sign = document.createElement('span');
+          sign.className =  "result-sign ok";
+          sign.innerHTML = '&#10004';
+          cell.appendChild(sign);
+
+          // Details
+          var details = document.createElement('div');
+          details.className = "details ok";
+          var resStr = toString(result);
+          details.innerHTML = resStr;
+          cell.appendChild(details);
+
+          // Short message
+          cell.appendChild(document.createTextNode(shortmsg));
+          cell.appendChild(document.createElement('br'));
+        };
+      }
+      
+      function err(alg, op, shortmsg) {
+        return function(error) {
+          var cell = findCell(alg, op);
+
+          // Sign
+          var sign = document.createElement('span');
+          sign.className =  "result-sign err";
+          sign.innerHTML = '&#10006';
+          cell.appendChild(sign);
+
+          // Details
+          var details = document.createElement('div');
+          details.className = "details err";
+          details.innerHTML = error;
+          cell.appendChild(details);
+
+          // Short message
+          cell.appendChild(document.createTextNode(shortmsg));
+          cell.appendChild(document.createElement('br'));
+        };
+      }
+    </script>
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th>Algorithm name</th>
+          <th>encrypt</th>
+          <th>decrypt</th>
+          <th>sign</th>
+          <th>verify</th>
+          <th>digest</th>
+          <th>generateKey</th>
+          <th>deriveKey</th>
+          <th>deriveBits</th>
+          <th>importKey</th>
+          <th>exportKey</th>
+          <th>wrapKey</th>
+          <th>unwrapKey</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <!--
+        #############################
+        ###   RSASSA-PKCS1-v1_5   ###
+        #############################
+        -->
+        <tr id="rsassa">
+          <td class="algName">RSASSA-PKCS1-v1_5</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify"></td>
+          <td class="digest"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   RSA-PSS   ###
+        ###################
+        -->
+        <tr id="rsa-pss">
+          <td class="algName">RSA-PSS</td>
+          <td class="encrypt unsupported unsupported"></td>
+          <td class="decrypt"></td>
+          <td class="sign"></td>
+          <td class="verify"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ####################
+        ###   RSA-OAEP   ###
+        ####################
+        -->
+        <tr id="rsa-oaep">
+          <td class="algName">RSA-OAEP</td>
+          <td class="encrypt">
+            <script>
+              webCrypto.subtle.generateKey(
+                      {
+                        name: "RSA-OAEP",
+                        modulusLength: 1024,
+                        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                        hash: {name: 'SHA-256'}
+                      }, false, ["encrypt", "decrypt"])
+              .then(function(key){
+                return webCrypto.subtle.encrypt(
+                        {
+                          name: 'RSA-OAEP',
+                          hash: {name: 'SHA-256'}
+                        }, 
+                        key.publicKey, 
+                        new Uint8Array([0,1,2,3,4]));
+              })
+              .then(ok("rsa-oaep", "encrypt", "Yes"))
+              .catch(err("rsa-oaep", "encrypt", "No"));
+            </script>
+          </td>
+          <td class="decrypt">
+            <script>
+              webCrypto.subtle.generateKey(
+                      {
+                        name: "RSA-OAEP",
+                        modulusLength: 1024,
+                        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                        hash: {name: 'SHA-256'}
+                      }, false, ["encrypt", "decrypt"])
+              .then(function(key){
+                
+                webCrypto.subtle.encrypt(
+                        {
+                          name: 'RSA-OAEP',
+                          hash: {name: 'SHA-256'}
+                        }, 
+                        key.publicKey, 
+                        new Uint8Array([0,1,2,3,4]))
+                .then(function(encrypted) {
+                  return webCrypto.subtle.decrypt(
+                          {
+                            name: "RSA-OAEP",
+                            hash: {name: 'SHA-256'}
+                          }, 
+                          key.privateKey, 
+                          encrypted);
+                })
+                .then(ok("rsa-oaep", "decrypt", "Yes"))
+                .catch(err("rsa-oaep", "decrypt", "No"));
+              })
+              .catch(err("rsa-oaep", "decrypt", "N/A"));
+            </script>
+          </td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey">
+            <script>
+              manually('rsa-oaep', 'generateKey', function() {
+                webCrypto.subtle.generateKey(
+                  {
+                    name: "RSA-OAEP",
+                    modulusLength: 1024,
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"}
+                  },
+                  false,
+                  ["encrypt", "decrypt"]
+                ).then(ok('rsa-oaep', 'generateKey', '1024 Bits'))
+                .catch(err('rsa-oaep', 'generateKey', '1024 Bits'));
+
+                webCrypto.subtle.generateKey(
+                  {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"}
+                  },
+                  false,
+                  ["encrypt", "decrypt"]
+                ).then(ok('rsa-oaep', 'generateKey', '2048 Bits'))
+                .catch(err('rsa-oaep', 'generateKey', '2048 Bits'));
+
+                webCrypto.subtle.generateKey(
+                  {
+                    name: "RSA-OAEP",
+                    modulusLength: 4096,
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"}
+                  },
+                  false,
+                  ["encrypt", "decrypt"]
+                ).then(ok('rsa-oaep', 'generateKey', '4096 Bits'))
+                .catch(err('rsa-oaep', 'generateKey', '4096 Bits'));
+              });
+            </script>
+          </td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        ################
+        ###   ECDSA   ###
+        ################
+        -->
+        <tr id="ecdsa">
+          <td class="algName">ECDSA</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign"></td>
+          <td class="verify"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ################
+        ###   ECDH   ###
+        ################
+        -->
+        <tr id="ecdh">
+          <td class="algName">ECDH</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey"></td>
+          <td class="deriveBits"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   AES-CTR   ###
+        ###################
+        -->
+        <tr id="aes-ctr">
+          <td class="algName">AES-CTR</td>
+          <td class="encrypt"></td>
+          <td class="decrypt"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   AES-CBC   ###
+        ###################
+        -->
+        <tr id="aes-cbc">
+          <td class="algName">AES-CBC</td>
+          <td class="encrypt"></td>
+          <td class="decrypt"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        #############################
+        ###   AES-CMAC   ###
+        #############################
+        -->
+        <tr id="aes-cmac">
+          <td class="algName">AES-CMAC</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign"></td>
+          <td class="verify"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        
+        <!--
+        ###################
+        ###   AES-GCM   ###
+        ###################
+        -->
+        <tr id="aes-gcm">
+          <td class="algName">AES-GCM</td>
+          <td class="encrypt"></td>
+          <td class="decrypt"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey">
+            <script>
+              webCrypto.subtle.generateKey(
+                {
+                  name: "AES-GCM",
+                  length: 128
+                },
+                true,
+                ['encrypt', 'decrypt']
+              ).then(ok('aes-gcm', 'generateKey', '128 Bits'))
+              .catch(err('aes-gcm', 'generateKey', '128 Bits'));
+              
+              webCrypto.subtle.generateKey(
+                {
+                  name: "AES-GCM",
+                  length: 192
+                },
+                true,
+                ['encrypt', 'decrypt']
+              ).then(ok('aes-gcm', 'generateKey', '192 Bits'))
+              .catch(err('aes-gcm', 'generateKey', '192 Bits'));
+              
+              webCrypto.subtle.generateKey(
+                {
+                  name: "AES-GCM",
+                  length: 256
+                },
+                true,
+                ['encrypt', 'decrypt']
+              ).then(ok('aes-gcm', 'generateKey', '256 Bits'))
+              .catch(err('aes-gcm', 'generateKey', '256 Bits'));
+            </script>
+          </td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   AES-CFB   ###
+        ###################
+        -->
+        <tr id="aes-cfb">
+          <td class="algName">AES-CFB</td>
+          <td class="encrypt"></td>
+          <td class="decrypt"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        #############################
+        ###   AES-KW   ###
+        #############################
+        -->
+        <tr id="aes-kw">
+          <td class="algName">AES-KW</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey"></td>
+          <td class="unwrapKey"></td>              
+        </tr>
+        
+        <!--
+        ################
+        ###   HMAC   ###
+        ################
+        -->
+        <tr id="hmac">
+          <td class="algName">HMAC</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign"></td>
+          <td class="verify"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ##############
+        ###   DH   ###
+        ##############
+        -->
+        <tr id="dh">
+          <td class="algName">DH</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey"></td>
+          <td class="deriveBits"></td>
+          <td class="importKey"></td>
+          <td class="exportKey"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ################
+        ###   SHA1   ###
+        ################
+        -->
+        <tr id="sha-1">
+          <td class="algName">SHA1</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest">
+            <script>
+              webCrypto.subtle.digest(
+                {name: 'SHA-1'},
+                new Uint8Array([1,2,3,4]))
+              .then(ok('sha-1', 'digest', 'Yes'))
+              .catch(err('sha-1', 'digest', 'No'));
+            </script>
+          </td>
+          <td class="generateKey unsupported"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey unsupported"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   SHA-256   ###
+        ###################
+        -->
+        <tr id="sha-256">
+          <td class="algName">SHA-256</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest">
+            <script>
+              webCrypto.subtle.digest(
+                {name: 'SHA-256'},
+                new Uint8Array([1,2,3,4]))
+              .then(ok('sha-256', 'digest', 'Yes'))
+              .catch(err('sha-256', 'digest', 'No'));
+            </script>
+          </td>
+          <td class="generateKey unsupported"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey unsupported"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   SHA-384   ###
+        ###################
+        -->
+        <tr id="sha-384">
+          <td class="algName">SHA-384</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest">
+            <script>
+              webCrypto.subtle.digest(
+                {name: 'SHA-384'},
+                new Uint8Array([1,2,3,4]))
+              .then(ok('sha-384', 'digest', 'Yes'))
+              .catch(err('sha-384', 'digest', 'No'));
+            </script>
+          </td>
+          <td class="generateKey unsupported"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey unsupported"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ###################
+        ###   SHA-512   ###
+        ###################
+        -->
+        <tr id="sha-512">
+          <td class="algName">SHA-512</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest">
+            <script>
+              webCrypto.subtle.digest(
+                {name: 'SHA-512'},
+                new Uint8Array([1,2,3,4]))
+              .then(ok('sha-512', 'digest', 'Yes'))
+              .catch(err('sha-512', 'digest', 'No'));
+            </script>
+          </td>
+          <td class="generateKey unsupported"></td>
+          <td class="deriveKey unsupported"></td>
+          <td class="deriveBits unsupported"></td>
+          <td class="importKey unsupported"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        #################
+        ###   CONCAT  ###
+        #################
+        -->
+        <tr id="concat">
+          <td class="algName">CONCAT</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey unsupported"></td>
+          <td class="deriveKey"></td>
+          <td class="deriveBits"></td>
+          <td class="importKey"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ####################
+        ###   HKDF-CTR   ###
+        ####################
+        -->
+        <tr id="hkdf-ctr">
+          <td class="algName">HKDF-CTR</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey unsupported"></td>
+          <td class="deriveKey"></td>
+          <td class="deriveBits"></td>
+          <td class="importKey"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+        <!--
+        ##################
+        ###   PBKDF2   ###
+        ##################
+        -->
+        <tr id="pbkdf2">
+          <td class="algName">PBKDF2</td>
+          <td class="encrypt unsupported"></td>
+          <td class="decrypt unsupported"></td>
+          <td class="sign unsupported"></td>
+          <td class="verify unsupported"></td>
+          <td class="digest unsupported"></td>
+          <td class="generateKey"></td>
+          <td class="deriveKey"></td>
+          <td class="deriveBits"></td>
+          <td class="importKey"></td>
+          <td class="exportKey unsupported"></td>
+          <td class="wrapKey unsupported"></td>
+          <td class="unwrapKey unsupported"></td>              
+        </tr>
+        
+      </tbody>
+    </table>
+    <script>
+    </script>
+  </body>
+</html>
