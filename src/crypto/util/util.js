@@ -18,29 +18,6 @@ function extend(base, sub) {
     sub._super = base.prototype;
 }
 
-/**
- * Encodes the string given as parameter to UTF-8.
- *  
- * @private
- * @see {@link http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html}
- * @param {string} str The string to encode
- * @returns {string} The UTF-8 encoded string
- */
-function encodeUTF8(str) {
-  return unescape(encodeURIComponent(str));
-}
-
-/**
- * Decodes the UTF-8 string given as parameter.
- * 
- * @private
- * @see {@link http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html}
- * @param {string} str The string to decode
- * @returns {string} The decoded string
- */
-function decodeUTF8(str) {
-  return decodeURIComponent(escape(str));
-}
 
 /**
  * Converts the string given as parameter to ByteArray.
