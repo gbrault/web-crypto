@@ -6,3 +6,5 @@
 exports.util = {};
 exports.util.bytesToBase64URL = bytesToBase64URL;
 exports.util.base64URLToBytes = base64URLToBytes;
+exports.util.bytesToHex = bytesToHex;
+exports.util.hexToBytes = hexToBytes;

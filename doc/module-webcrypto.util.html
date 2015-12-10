@@ -209,7 +209,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line108">line 108</a>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -358,7 +358,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line94">line 94</a>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line71">line 71</a>
     </li></ul></dd>
     
 
@@ -386,6 +386,160 @@
         
 <div class="param-desc">
     The bytes given as parameter as Base64URL encoded string.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".bytesToHex"><span class="type-signature">(static) </span>bytesToHex<span class="signature">(bytes)</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Converts the given ByteArray to a string in hexadecimal format.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>bytes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">ByteArray</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The bytes to be converted</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line103">line 103</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The bytes given as parameter as string in hexadecimal 
+format.
 </div>
 
 
@@ -567,7 +721,7 @@ UTF-8.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line76">line 76</a>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -606,6 +760,159 @@ UTF-8.</td>
     <dd>
         
 <span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".hexToBytes"><span class="type-signature">(static) </span>hexToBytes<span class="signature">(hex)</span><span class="type-signature"> &rarr; {ByteArray}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Converts the given string in hexadecimal format to ByteArray.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hex</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The string in hexadecimal format to be converted</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line126">line 126</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The string given as paramter as ByteArray
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">ByteArray</span>
 
 
     </dd>
@@ -777,7 +1084,7 @@ unicode of each character in <code>str</code> is in the range of 0 to 255.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line55">line 55</a>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line32">line 32</a>
     </li></ul></dd>
     
 
@@ -847,7 +1154,7 @@ unicode of each character in <code>str</code> is in the range of 0 to 255.</td>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Dec 09 2015 13:52:52 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Dec 10 2015 15:29:57 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

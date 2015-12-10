@@ -13649,12 +13649,6 @@ var isIE = !!global.msCrypto,
     
 if(globalCrypto) subtle = globalCrypto.subtle;
 
-//// NUR ZUM TESTEN
-//isIE = false;
-//isW3C = false;
-//globalCrypto = undefined;
-//subtle = undefined;
-
 /**
  * Creates a new CryptoKey object.
  * 
@@ -16324,6 +16318,8 @@ function deriveBitsFallback(algorithm, baseKey, length) {
 exports.util = {};
 exports.util.bytesToBase64URL = bytesToBase64URL;
 exports.util.base64URLToBytes = base64URLToBytes;
+exports.util.bytesToHex = bytesToHex;
+exports.util.hexToBytes = hexToBytes;
 /**
  * Creates inheritance.
  * 
@@ -16344,29 +16340,6 @@ function extend(base, sub) {
     sub._super = base.prototype;
 }
 
-/**
- * Encodes the string given as parameter to UTF-8.
- *  
- * @private
- * @see {@link http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html}
- * @param {string} str The string to encode
- * @returns {string} The UTF-8 encoded string
- */
-function encodeUTF8(str) {
-  return unescape(encodeURIComponent(str));
-}
-
-/**
- * Decodes the UTF-8 string given as parameter.
- * 
- * @private
- * @see {@link http://ecmanaut.blogspot.de/2006/07/encoding-decoding-utf8-in-javascript.html}
- * @param {string} str The string to decode
- * @returns {string} The decoded string
- */
-function decodeUTF8(str) {
-  return decodeURIComponent(escape(str));
-}
 
 /**
  * Converts the string given as parameter to ByteArray.
@@ -16440,6 +16413,52 @@ function base64URLToBytes(str) {
   str = str.replace(/-/g, '+').replace(/_/g, '/');
   return stringToBytes(atob(str));
 }
+
+/**
+ * Converts the given ByteArray to a string in hexadecimal format.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {ByteArray} bytes The bytes to be converted
+ * @returns {string} The bytes given as parameter as string in hexadecimal 
+ * format.
+ */
+function bytesToHex(bytes) {
+  var str = '';
+  var i = 0;
+  var len = bytes.length;
+  while(i < len) {
+    var byte = bytes[i];
+    var hex = byte.toString(16);
+    if(byte < 16) {
+      hex = '0' + hex;
+    }
+    str += hex;
+    i++;
+  }
+  return str;
+}
+
+/**
+ * Converts the given string in hexadecimal format to ByteArray.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {string} hex The string in hexadecimal format to be converted
+ * @returns {ByteArray} The string given as paramter as ByteArray
+ */
+function hexToBytes(hex) {
+  var length = hex.length;
+  if(length & 1) {
+    // If length is odd, add leading zero
+    hex = '0' + hex;
+    length++;
+  }
+  var bytes = new Uint8Array(length / 2);
+  for(var i = 0; i < length; i += 2) {
+    bytes[i/2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes;
+}
+
 
 /**
  * Converts JWK to ByteArray.

@@ -93,6 +93,52 @@ function base64URLToBytes(str) {
 }
 
 /**
+ * Converts the given ByteArray to a string in hexadecimal format.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {ByteArray} bytes The bytes to be converted
+ * @returns {string} The bytes given as parameter as string in hexadecimal 
+ * format.
+ */
+function bytesToHex(bytes) {
+  var str = '';
+  var i = 0;
+  var len = bytes.length;
+  while(i < len) {
+    var byte = bytes[i];
+    var hex = byte.toString(16);
+    if(byte < 16) {
+      hex = '0' + hex;
+    }
+    str += hex;
+    i++;
+  }
+  return str;
+}
+
+/**
+ * Converts the given string in hexadecimal format to ByteArray.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {string} hex The string in hexadecimal format to be converted
+ * @returns {ByteArray} The string given as paramter as ByteArray
+ */
+function hexToBytes(hex) {
+  var length = hex.length;
+  if(length & 1) {
+    // If length is odd, add leading zero
+    hex = '0' + hex;
+    length++;
+  }
+  var bytes = new Uint8Array(length / 2);
+  for(var i = 0; i < length; i += 2) {
+    bytes[i/2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes;
+}
+
+
+/**
  * Converts JWK to ByteArray.
  * 
  * @private
