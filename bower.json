@@ -11,8 +11,8 @@
   "ignore": [
     "bower_components",
     "doc",
-    "lib",
     "node_modules",
+    "repos",
     "src",
     "test",
     ".gitignore",
@@ -32,6 +32,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "es6-promise": "3.0.2"
+    "es6-promise": "3.0.2",
+    "requirejs": "2.1.22"
   }
 }

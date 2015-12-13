@@ -4,7 +4,7 @@
     <title>RSA-OAEP tests</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" src="../dist/web-crypto-promise.min.js"></script>
+    <script type="text/javascript" src="../dist/web-crypto.min.js"></script>
   </head>
   <body>
     <div>RSA-OAEP tests</div>
@@ -155,7 +155,7 @@
       }).then(function(aesKey) {
         
         console.log('AES-Key:');
-        console.log(new Uint8Array(aesKey._handle));
+        console.log(aesKey);
         
         // Wrap AES key
         return webCrypto.subtle.wrapKey(
@@ -189,7 +189,7 @@
           ['encrypt', 'decrypt']);
       }).then(function(unwrappedKey) {
         console.log('unwrapped AES key:');
-        console.log(new Uint8Array(unwrappedKey._handle));
+        console.log(unwrappedKey);
       }).catch(function(err) {
         console.error(err);
       });
