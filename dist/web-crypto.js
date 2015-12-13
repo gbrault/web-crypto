@@ -534,7 +534,7 @@ function exportKey_AES(format, key) {
  * @param {string} format the data format of the key to imported. Possible
  * values are "raw" (usually a secret key), "pkcs8" (private key), 
  * "skpi" (usually a public key) and "jwk".
- * @param {ArrayBuffer | Object} keyData The key in the specified format.
+ * @param {BufferSource | Object} keyData The key in the specified format.
  * @param {Object} normAlgo The normalized cryptographic algorithm for use 
  * with the output key object.
  * @param {boolean} extractable indicating if the key can be extracted from the 
@@ -556,11 +556,7 @@ function importKey_AES(format, keyData, normAlgo, extractable, usages) {
       throw new DataError(
               'Key data must be a BufferSource for non-JWK formats');
     }
-    if(keyData instanceof ArrayBuffer) {
-      data = keyData;
-    } else {
-      data = keyData.buffer;
-    }
+    data = getBuffer(keyData);
     if(data.byteLength !== 128 / 8
             && data.byteLength !== 192 / 8
             && data.byteLength !== 256 / 8) {
@@ -1163,7 +1159,7 @@ function exportKey_RSA(format, key) {
  * @param {string} format the data format of the key to imported. Possible
  * values are "raw" (usually a secret key), "pkcs8" (private key), 
  * "skpi" (usually a public key) and "jwk".
- * @param {ArrayBuffer | Object} keyData The key in the specified format.
+ * @param {BufferSource | Object} keyData The key in the specified format.
  * @param {Object} normAlgo The normalized cryptographic algorithm for use 
  * with the output key object.
  * @param {boolean} extractable indicating if the key can be extracted from the 
@@ -1941,7 +1937,7 @@ function exportKeyFallback(format, key) {
  * @param {string} format The data format of the key to imported. Possible
  * values are "raw" (usually a secret key), "pkcs8" (private key), 
  * "skpi" (usually a public key) and "jwk".
- * @param {ArrayBuffer | Object} keyData The key in the specified format.
+ * @param {BufferSource | Object} keyData The key in the specified format.
  * @param {AlgorithmIdentifier} algorithm The cryptographic algorithm for use 
  * with the output key object.
  * @param {boolean} extractable indicating if the key can be extracted from the 
@@ -1998,7 +1994,7 @@ function importKey(format, keyData, algorithm, extractable, usages) {
  * @param {string} format the data format of the key to imported. Possible
  * values are "raw" (usually a secret key), "pkcs8" (private key), 
  * "skpi" (usually a public key) and "jwk".
- * @param {ArrayBuffer | Object} keyData The key in the specified format.
+ * @param {BufferSource | Object} keyData The key in the specified format.
  * @param {AlgorithmIdentifier} algorithm The cryptographic algorithm for use 
  * with the output key object.
  * @param {boolean} extractable indicating if the key can be extracted from the 

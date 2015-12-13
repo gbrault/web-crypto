@@ -237,7 +237,7 @@ function exportKey_RSA(format, key) {
  * @param {string} format the data format of the key to imported. Possible
  * values are "raw" (usually a secret key), "pkcs8" (private key), 
  * "skpi" (usually a public key) and "jwk".
- * @param {ArrayBuffer | Object} keyData The key in the specified format.
+ * @param {BufferSource | Object} keyData The key in the specified format.
  * @param {Object} normAlgo The normalized cryptographic algorithm for use 
  * with the output key object.
  * @param {boolean} extractable indicating if the key can be extracted from the 
