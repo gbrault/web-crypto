@@ -1,4 +1,4 @@
-var global = window || self;
+var global = typeof importScripts !== 'function' ? window : self;
 var isIE = !!global.msCrypto,
     isW3C = !!global.crypto,
     globalCrypto = global.crypto || global.msCrypto,
