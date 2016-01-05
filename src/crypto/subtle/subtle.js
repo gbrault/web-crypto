@@ -443,7 +443,7 @@ function toPromise(fn) {
  */
 function digest(algorithm, data) {
   return new Promise(function(resolve, reject) {
-    if(globalCrypto) {
+    if(subtle) {
       toPromise(function() {return subtle.digest(algorithm, data);})
       .then(function(hash) {
         resolve(hash);
@@ -502,7 +502,7 @@ function digestFallback(algorithm, data) {
  */
 function generateKey(algorithm, extractable, keyUsages) {
   return new Promise(function(resolve, reject) {
-    if(globalCrypto) {
+    if(subtle) {
       toPromise(function() {
         return subtle.generateKey(algorithm, extractable, keyUsages);
       }).then(function(key) {
@@ -605,7 +605,7 @@ function generateKeyFallback(algorithm, extractable, keyUsages) {
  */
 function exportKey(format, key) {
   if(isNativeCryptoKey(key)) {
-    if(globalCrypto) {
+    if(subtle) {
       // Not necessary to handle 'NotSupportedError' here, because if
       // export of native key is not supported, fallback function
       // has also no possibility to export it
@@ -663,7 +663,7 @@ function exportKeyFallback(format, key) {
  */
 function importKey(format, keyData, algorithm, extractable, usages) {
   return new Promise(function(resolve, reject) {
-    if(globalCrypto) {
+    if(subtle) {
       toPromise(function() {
         return subtle.importKey(
                 format, keyData, algorithm, extractable, usages);
@@ -762,7 +762,7 @@ function importKeyFallback(format, keyData, algorithm, extractable, usages) {
 function encrypt(algorithm, key, data) {
   return new Promise(function(resolve, reject) {
     
-    if(globalCrypto) {
+    if(subtle) {
       polyToNativeCryptoKey(key).then(function(nativeKey) {
         return toPromise(function() {
           return subtle.encrypt(algorithm, nativeKey, data);});
@@ -838,7 +838,7 @@ function encryptFallback(algorithm, key, data) {
 function decrypt(algorithm, key, data) {
   return new Promise(function(resolve, reject) {
     
-    if(globalCrypto) {
+    if(subtle) {
       polyToNativeCryptoKey(key).then(function(nativeKey) {
         return toPromise(function() {
           return subtle.decrypt(algorithm, key, data);});
@@ -914,7 +914,7 @@ function decryptFallback(algorithm, key, data) {
  */
 function wrapKey(format, key, wrappingKey, wrapAlgorithm) {
   return new Promise(function(resolve, reject) {
-    if(globalCrypto) {
+    if(subtle) {
       Promise.all([
         polyToNativeCryptoKey(key),
         polyToNativeCryptoKey(wrappingKey)
@@ -1051,7 +1051,7 @@ function wrapKeyFallback(format, key, wrappingKey, wrapAlgorithm) {
 function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       unwrappedKeyAlgorithm, extractable, keyUsages) {
   return new Promise(function(resolve, reject) {
-    if(globalCrypto) {
+    if(subtle) {
       polyToNativeCryptoKey(unwrappingKey).then(function(nativeUnwrappingKey) {
         if(isW3C) {
           return subtle.unwrapKey(format, wrappedKey, nativeUnwrappingKey, 
@@ -1205,7 +1205,7 @@ function deriveKey(algorithm, baseKey, derivedKeyType, extractable, keyUsages) {
   return new Promise(function(resolve, reject) {
     
     // deriveKey is not supported in IE
-    if(isW3C) {
+    if(isW3C && subtle) {
       polyToNativeCryptoKey(baseKey).then(function(nativeBaseKey) {
         return subtle.deriveKey(algorithm, nativeBaseKey, derivedKeyType, 
                 extractable, keyUsages);
@@ -1334,7 +1334,7 @@ function deriveBits(algorithm, baseKey, length) {
   
   return new Promise(function(resolve, reject) {
     // deriveBits is not supported in IE
-    if(isW3C) {
+    if(isW3C && subtle) {
       return subtle.deriveBits(algorithm, baseKey, length)
       .then(function(bits) {
         resolve(bits);
