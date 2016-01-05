@@ -1805,7 +1805,7 @@ function generateKey(algorithm, extractable, keyUsages) {
       generateKeyFallback(algorithm, extractable, keyUsages)
       .then(function(key) {
         
-        if(globalCrypto) {
+        if(subtle) {
           if(key instanceof CryptoKey) {
             // Single secret key
             
@@ -1968,7 +1968,7 @@ function importKey(format, keyData, algorithm, extractable, usages) {
       importKeyFallback(format, keyData, algorithm, extractable, usages)
       .then(function(key) {
         
-        if(globalCrypto) {
+        if(subtle) {
           polyToNativeCryptoKey(key).then(function(nativeKey) {
             resolve(nativeKey);
           }).catch(function() {
@@ -2372,7 +2372,7 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
         return unwrapKeyFallback(format, wrappedKey, polyUnwrappingKey, 
                 unwrapAlgorithm, unwrappedKeyAlgorithm, extractable, keyUsages);
       }).then(function(unwrappedKey) {
-        if(globalCrypto) {
+        if(subtle) {
           polyToNativeCryptoKey(unwrappedKey).then(function(nativeUnwrappedKey) {
             resolve(nativeUnwrappedKey);
           }).catch(function() {
@@ -2511,7 +2511,7 @@ function deriveKey(algorithm, baseKey, derivedKeyType, extractable, keyUsages) {
         return deriveKeyFallback(algorithm, polyBaseKey, derivedKeyType, 
                 extractable, keyUsages);
       }).then(function(key) {
-        if(globalCrypto) {
+        if(subtle) {
           polyToNativeCryptoKey(key).then(function(nativeKey) {
             resolve(nativeKey);
           }).catch(function() {
