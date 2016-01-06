@@ -6,6 +6,11 @@ var isIE = !!global.msCrypto,
     
 if(globalCrypto) subtle = globalCrypto.subtle;
 
+if(asmCrypto) {
+  asmCrypto.random.skipSystemRNGWarning = true;
+  asmCrypto.random.allowWeak = true;
+}
+
 /**
  * Creates a new CryptoKey object.
  * 
