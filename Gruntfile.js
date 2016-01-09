@@ -65,11 +65,16 @@ module.exports = function(grunt) {
       }
     },
     clean: {
-      src: ['dist/web-crypto-src.*']
+      source: {
+        src: ['dist/web-crypto-src.*']
+      },
+      doc: {
+        src: ['doc/*']
+      }
     },
     jsdoc: {
       source: {
-        src: ['src/**/*.js'],
+        src: ['README.md', 'src/**/*.js'],
         options: {
           dest: 'doc',
           private: false
@@ -99,6 +104,6 @@ module.exports = function(grunt) {
   });
   
   grunt.registerTask('default', ['concat:source', 'uglify:source']);
-  grunt.registerTask('doc', ['jsdoc:source']);
+  grunt.registerTask('doc', ['clean:doc', 'jsdoc:source']);
 
 };
