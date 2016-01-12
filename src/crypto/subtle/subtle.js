@@ -282,8 +282,6 @@ function normalizeAlgorithm(op, alg) {
       case 'SHA-512':
         normAlg = new Algorithm().init(alg);
         break;
-//      case 'AES-CBC':
-//        break;
       case 'AES-GCM':
         if(op === 'encrypt' || op === 'decrypt') {
           normAlg = new AesGcmParams().init(alg);
@@ -299,14 +297,6 @@ function normalizeAlgorithm(op, alg) {
                   + "' algorithm for op '" + op + "' not supported");
         }
         break;
-//      case 'AES-KW':
-//        break;
-//      case 'HMAC':
-//        break;
-//      case 'RSAES-PKCS1-v1_5':
-//        break;
-//      case 'RSASSA-PKCS1-v1_5':
-//        break;
       case 'RSA-OAEP':
         if(op === 'encrypt' || op === 'decrypt' 
                 || op === 'wrapKey' || op === 'unwrapKey') {
