@@ -185,6 +185,17 @@ exports.ext = {};
  */
 exports.ext.pbkdf2 = {};
 exports.ext.pbkdf2.deriveKeySha256 = deriveKey_pbkdf2_sha256;
+
+/**
+ * The namespace sha256 contains functions that are based on the
+ * SHA-256 hash algorithm.
+ * 
+ * @memberOf module:webcrypto.ext
+ * @namespace sha256
+ */
+exports.ext.sha256 = {};
+exports.ext.sha256.base64URL = digest_sha256_base64URL;
+exports.ext.sha256.hex = digest_sha256_hex;
 /**
  * Derives a key from the given password and parameters using the
  * PBKDF2 with HMAC and SHA256. 
@@ -237,7 +248,60 @@ function deriveKey_pbkdf2_sha256(derivedKeyType, extractable, keyUsages,
     });
     
   });
-}
+};
+
+/**
+ * Generates a digest from the hash function and data given as parameters.
+ * 
+ * @private
+ * @param {string} hashAlg The name of the hash function to use.
+ * @param {string|BufferSource} data The data to be hashed.
+ * @returns {Promise} A Promise that returns the hash as ByteArray.
+ */
+function digest_sha_bytes(hashAlg, data) {
+  return new Promise(function(resolve, reject) {
+    if(isString(data)) {
+      data = stringToBytes(data);
+    };
+    digest({name: hashAlg}, data).then(function(hash) {
+      resolve(new Uint8Array(hash));
+    }).catch(function(err) {
+      reject(err);
+    });
+  });
+};
+
+/**
+ * Generates the SHA-256 hash for the data given as parameter and retuns
+ * the result as string in Base64URL format.
+ * 
+ * @memberOf module:webcrypto.ext.sha256
+ * @alias base64URL
+ * @param {string|BufferSource} data The data to be hashed.
+ * @returns {Promise} A Promise that returns the hash as string in Base64URL 
+ * format.
+ */
+function digest_sha256_base64URL(data) {
+  return digest_sha_bytes('SHA-256', data).then(function(hash) {
+    return bytesToBase64URL(hash);
+  });
+};
+
+/**
+ * Generates the SHA-256 hash for the data given as parameter and retuns
+ * the result as string in hexadecimal format.
+ * 
+ * @memberOf module:webcrypto.ext.sha256
+ * @alias hex
+ * @param {string|BufferSource} data The data to be hashed.
+ * @returns {Promise} A Promise that returns the hash as string in hexadecimal 
+ * format.
+ */
+function digest_sha256_hex(data) {
+  return digest_sha_bytes('SHA-256', data).then(function(hash) {
+    return bytesToHex(hash);
+  });
+};
 /**
  * Creates a new AesGcmParams object.<br />
  * @see {@link http://www.w3.org/TR/WebCryptoAPI/#aes-gcm-params}
@@ -1576,6 +1640,7 @@ function getJWKUsageMapping(use) {
  * This function decides based on the error name, wether the fallback function
  * should be used for the specified method.
  * 
+ * @private
  * @param {string} method The name of the method.
  * @param {string} errorName The name ot the error.
  * @returns {boolean} true if fallback function should be used, false otherwise

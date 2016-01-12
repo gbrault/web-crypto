@@ -50,4 +50,57 @@ function deriveKey_pbkdf2_sha256(derivedKeyType, extractable, keyUsages,
     });
     
   });
-}
+};
+
+/**
+ * Generates a digest from the hash function and data given as parameters.
+ * 
+ * @private
+ * @param {string} hashAlg The name of the hash function to use.
+ * @param {string|BufferSource} data The data to be hashed.
+ * @returns {Promise} A Promise that returns the hash as ByteArray.
+ */
+function digest_sha_bytes(hashAlg, data) {
+  return new Promise(function(resolve, reject) {
+    if(isString(data)) {
+      data = stringToBytes(data);
+    };
+    digest({name: hashAlg}, data).then(function(hash) {
+      resolve(new Uint8Array(hash));
+    }).catch(function(err) {
+      reject(err);
+    });
+  });
+};
+
+/**
+ * Generates the SHA-256 hash for the data given as parameter and retuns
+ * the result as string in Base64URL format.
+ * 
+ * @memberOf module:webcrypto.ext.sha256
+ * @alias base64URL
+ * @param {string|BufferSource} data The data to be hashed.
+ * @returns {Promise} A Promise that returns the hash as string in Base64URL 
+ * format.
+ */
+function digest_sha256_base64URL(data) {
+  return digest_sha_bytes('SHA-256', data).then(function(hash) {
+    return bytesToBase64URL(hash);
+  });
+};
+
+/**
+ * Generates the SHA-256 hash for the data given as parameter and retuns
+ * the result as string in hexadecimal format.
+ * 
+ * @memberOf module:webcrypto.ext.sha256
+ * @alias hex
+ * @param {string|BufferSource} data The data to be hashed.
+ * @returns {Promise} A Promise that returns the hash as string in hexadecimal 
+ * format.
+ */
+function digest_sha256_hex(data) {
+  return digest_sha_bytes('SHA-256', data).then(function(hash) {
+    return bytesToHex(hash);
+  });
+};

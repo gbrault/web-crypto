@@ -15,3 +15,14 @@ exports.ext = {};
  */
 exports.ext.pbkdf2 = {};
 exports.ext.pbkdf2.deriveKeySha256 = deriveKey_pbkdf2_sha256;
+
+/**
+ * The namespace sha256 contains functions that are based on the
+ * SHA-256 hash algorithm.
+ * 
+ * @memberOf module:webcrypto.ext
+ * @namespace sha256
+ */
+exports.ext.sha256 = {};
+exports.ext.sha256.base64URL = digest_sha256_base64URL;
+exports.ext.sha256.hex = digest_sha256_hex;

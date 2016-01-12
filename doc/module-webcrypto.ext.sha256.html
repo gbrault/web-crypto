@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: pbkdf2</title>
+    <title>JSDoc: Namespace: sha256</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: pbkdf2</h1>
+    <h1 class="page-title">Namespace: sha256</h1>
 
     
 
@@ -29,7 +29,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-webcrypto.html">webcrypto</a><a href="module-webcrypto.ext.html">.ext</a>.</span>pbkdf2</h2>
+            <span class="ancestors"><a href="module-webcrypto.html">webcrypto</a><a href="module-webcrypto.ext.html">.ext</a>.</span>sha256</h2>
         
     
 </header>
@@ -38,8 +38,8 @@
     <div class="container-overview">
     
         
-            <div class="description">The namespace pbkdf2 contains functions that are based on the 
-PBKDF2 algorihtm.</div>
+            <div class="description">The namespace sha256 contains functions that are based on the
+SHA-256 hash algorithm.</div>
         
 
         
@@ -74,7 +74,7 @@ PBKDF2 algorihtm.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_ext_exports.js.html">crypto/ext/exports.js</a>, <a href="crypto_ext_exports.js.html#line9">line 9</a>
+        <a href="crypto_ext_exports.js.html">crypto/ext/exports.js</a>, <a href="crypto_ext_exports.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -110,15 +110,15 @@ PBKDF2 algorihtm.</div>
 
     
 
-    <h4 class="name" id=".deriveKeySha256"><span class="type-signature">(static) </span>deriveKeySha256<span class="signature">(derivedKeyType, extractable, keyUsages, password, salt, iterations)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id=".base64URL"><span class="type-signature">(static) </span>base64URL<span class="signature">(data)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    Derives a key from the given password and parameters using the
-PBKDF2 with HMAC and SHA256.
+    Generates the SHA-256 hash for the data given as parameter and retuns
+the result as string in Base64URL format.
 </div>
 
 
@@ -154,113 +154,16 @@ PBKDF2 with HMAC and SHA256.
 
         <tr>
             
-                <td class="name"><code>derivedKeyType</code></td>
+                <td class="name"><code>data</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">AlgorithmIdentifier</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The algorithm the derived key 
-will be used for.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>extractable</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Indicating if the key can be extracted from the 
-CryptoKey object at a later stage.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>keyUsages</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Indicating what can be done with the key.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">BufferSource</span>
+<span class="param-type">string</span>
 |
 
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The password from which the key is derived.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>salt</code></td>
-            
-
-            <td class="type">
-            
-                
 <span class="param-type">BufferSource</span>
-|
-
-<span class="param-type">string</span>
 
 
             
@@ -270,30 +173,7 @@ CryptoKey object at a later stage.</td>
 
             
 
-            <td class="description last">The salt.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>iterations</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The number of iterations to derive the key.</td>
+            <td class="description last">The data to be hashed.</td>
         </tr>
 
     
@@ -334,7 +214,7 @@ CryptoKey object at a later stage.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_ext_ext.js.html">crypto/ext/ext.js</a>, <a href="crypto_ext_ext.js.html#line17">line 17</a>
+        <a href="crypto_ext_ext.js.html">crypto/ext/ext.js</a>, <a href="crypto_ext_ext.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -361,7 +241,166 @@ CryptoKey object at a later stage.</td>
 
         
 <div class="param-desc">
-    Promise that returns the newly created CryptoKey.
+    A Promise that returns the hash as string in Base64URL 
+format.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".hex"><span class="type-signature">(static) </span>hex<span class="signature">(data)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Generates the SHA-256 hash for the data given as parameter and retuns
+the result as string in hexadecimal format.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">BufferSource</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The data to be hashed.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="crypto_ext_ext.js.html">crypto/ext/ext.js</a>, <a href="crypto_ext_ext.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A Promise that returns the hash as string in hexadecimal 
+format.
 </div>
 
 

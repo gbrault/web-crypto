@@ -4,7 +4,8 @@
     <title>SHA tests</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" src="../dist/web-crypto.min.js"></script>
+    <script type="text/javascript" src="../repos/asmcrypto.js/asmcrypto.js"></script>
+    <script type="text/javascript" src="../dist/web-crypto.js"></script>
   </head>
   <body>
     <div>SHA tests</div>
@@ -24,6 +25,11 @@
         );
       }).then(function(hash) {
         console.log('SHA-256: ' + new Uint8Array(hash));
+        
+        return webCrypto.ext.sha256.hex(data);
+        
+      }).then(function(hash) {
+        console.log('SHA256 (string shortcut): ' + hash);
       }).catch(function(err) {
         console.error(err);
       });

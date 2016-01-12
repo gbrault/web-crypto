@@ -281,6 +281,7 @@ function getJWKUsageMapping(use) {
  * This function decides based on the error name, wether the fallback function
  * should be used for the specified method.
  * 
+ * @private
  * @param {string} method The name of the method.
  * @param {string} errorName The name ot the error.
  * @returns {boolean} true if fallback function should be used, false otherwise
