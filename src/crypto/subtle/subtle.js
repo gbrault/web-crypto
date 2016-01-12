@@ -400,27 +400,6 @@ function toPromise(fn) {
       resolve(result);
     }
   });
-  
-  
-//  if(typeof operation.then === 'function') {
-//    return operation;
-//  } else if((window.KeyOperation && operation instanceof KeyOperation) 
-//          || (window.CryptoOperation && operation instanceof CryptoOperation)) {
-//    return new Promise(function(resolve, reject) {
-//      operation.oncomplete = function(e) {
-//        resolve(e.target.result);
-//      };
-//      operation.onerror = function(e) {
-//        reject(e);
-//      };
-//      
-//      operation.onabort = function(e) {
-//        reject(e);
-//      };
-//    });
-//  } else {
-//    throw new OperationError('Invalid type of operation');
-//  }
 }
 
 /**
