@@ -111,7 +111,7 @@ function nativeToPolyCryptoKey(key) {
   if(isPolyfillCryptoKey(key)) {
     return Promise.resolve(key);
   }
-  return exporteKey('jwk', key).then(function(jwk) {
+  return exportKey('jwk', key).then(function(jwk) {
     return importKeyFallback(
             'jwk', jwk, key.algorithm, key.extractable, key.usages);
   });
