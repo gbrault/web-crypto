@@ -64,6 +64,29 @@ var algorithmOperations = {
 };
 
 /**
+ * Specifies combinations of methods and error names for which the
+ * fallback function should be used.
+ * 
+ * @private
+ * @type {object}
+ */
+var methodFallbackErrors = {
+  'default': ['NotSupportedError'],
+  'encrypt': [],
+  'decrypt': [],
+  'sign': [],
+  'verify': [],
+  'digest': [],
+  'generateKey': ['OperationError'],
+  'deriveKey': ['OperationError'],
+  'deriveBits': [],
+  'importKey': [],
+  'exportKey': [],
+  'wrapKey': [],
+  'unwrapKey': []
+};
+
+/**
  * Creates a new Algorithm object.<br />
  * The Algorithm object is used to specify an algorithm and any additional 
  * parameters required to fully specify the desired operation.
@@ -255,6 +278,26 @@ function getJWKUsageMapping(use) {
 }
 
 /**
+ * This function decides based on the error name, wether the fallback function
+ * should be used for the specified method.
+ * 
+ * @param {string} method The name of the method.
+ * @param {string} errorName The name ot the error.
+ * @returns {boolean} true if fallback function should be used, false otherwise
+ */
+function shouldFallBack(method, errorName) {
+  
+  var methodErrors = methodFallbackErrors[method];
+  if(!methodErrors) {
+    throw new NotSupportedError('Unkown method: ' + method);
+  };
+  
+  return (methodFallbackErrors['default'].indexOf(errorName) !== -1)
+          || (methodErrors.indexOf(errorName) !== -1);
+  
+};
+
+/**
  * Normalizes the algorithm given as parameter. <br />
  * @see {@link http://www.w3.org/TR/WebCryptoAPI/#dfn-normalize-an-algorithm}
  * 
@@ -380,7 +423,7 @@ function performOperation(operation, normalizedAlgorithm, args) {
  * functions. 
  * 
  * @private
- * @param {function} The function to be wrapped in a Promise
+ * @param {function} fn The function to be wrapped in a Promise
  * @returns {Promise} The Promise of the wrapped function
  */
 function toPromise(fn) {
@@ -417,7 +460,7 @@ function digest(algorithm, data) {
       .then(function(hash) {
         resolve(hash);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('digest', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -477,7 +520,7 @@ function generateKey(algorithm, extractable, keyUsages) {
       }).then(function(key) {
         resolve(key);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError' || err.name === 'OperationError') {
+        if(shouldFallBack('generateKey', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -701,7 +744,7 @@ function importKeyFallback(format, keyData, algorithm, extractable, usages) {
     
     var result = performOperation('importKey', normAlgo, 
             [format, keyData, normAlgo, extractable, usages]);
-
+    
     if((result.type === 'secret' || result.type === 'private') 
         && usages.length === 0) {
       throw new SyntaxError("'usages' is empty");
@@ -738,7 +781,7 @@ function encrypt(algorithm, key, data) {
       }).then(function(ciphertext) {
         resolve(ciphertext);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('encrypt', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -814,7 +857,7 @@ function decrypt(algorithm, key, data) {
       }).then(function(plaintext) {
         resolve(plaintext);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('decrypt', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -905,7 +948,7 @@ function wrapKey(format, key, wrappingKey, wrapAlgorithm) {
       }).then(function(wrappedKey) {
         resolve(wrappedKey);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('wrapKey', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -1042,7 +1085,7 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       }).then(function(unwrappedKey) {
         resolve(unwrappedKey);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('unwrapKey', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -1181,7 +1224,7 @@ function deriveKey(algorithm, baseKey, derivedKeyType, extractable, keyUsages) {
       }).then(function(key) {
         resolve(key);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('deriveKey', err.name)) {
           fallback();
         } else {
           reject(err);
@@ -1308,7 +1351,7 @@ function deriveBits(algorithm, baseKey, length) {
       .then(function(bits) {
         resolve(bits);
       }).catch(function(err) {
-        if(err.name === 'NotSupportedError') {
+        if(shouldFallBack('deriveBits', err.name)) {
           fallback();
         } else {
           reject(err);

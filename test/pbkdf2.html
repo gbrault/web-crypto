@@ -4,7 +4,8 @@
     <title>PBKDF2 tests</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" src="../dist/web-crypto.min.js"></script>
+    <script type="text/javascript" src="../repos/asmcrypto.js/asmcrypto.js"></script>
+    <script type="text/javascript" src="../dist/web-crypto.js"></script>
   </head>
   <body>
     <div>PBKDF2 tests</div>
@@ -17,9 +18,11 @@
         'raw',
         password,
         {name: 'PBKDF2'},
-        false,
+        true,
         ['deriveKey']
       ).then(function(baseKey) {
+        
+        console.log('importedKey: ' + baseKey);
         
         // Derive key
         return webCrypto.subtle.deriveKey(
@@ -38,43 +41,14 @@
           ['encrypt', 'decrypt']
         );
       }).then(function(key) {
+        console.log('derivedKey: ' + key);
         return webCrypto.subtle.exportKey('jwk', key);
-      }).then(function(jwk) {
-        console.log('Poly derived key:');
-        console.log(jwk);
-        
-        // Generate base key native
-        return crypto.subtle.importKey(
-          'raw',
-          password,
-          {name: 'PBKDF2'},
-          false,
-          ['deriveKey']
-        );
-      }).then(function(baseKey) {
-        
-        // Derive key native
-        return crypto.subtle.deriveKey(
-          {
-            name: 'PBKDF2',
-            salt: salt,
-            iterations: 10000,
-            hash: {name: 'SHA-256'}
-          }, 
-          baseKey,
-          {
-            name: 'AES-GCM',
-            length: 256
-          },
-          true,
-          ['encrypt', 'decrypt']
-        );
-      }).then(function(key) {
-        return crypto.subtle.exportKey('jwk', key);  
         
       }).then(function(jwk) {
-        console.log('Native derived key:');
-        console.log(jwk);
+        console.log('Poly exported key:');
+        console.log(jwk);         
+        
+      }).then(function(jwk) {
         
         // Test shortcut pbkdf2
         return webCrypto.ext.pbkdf2.deriveKeySha256(
@@ -89,10 +63,13 @@
           10000);
         
       }).then(function(key) {
+        console.log('Poly derived key (shortcut): ' + key);
+        
         return webCrypto.subtle.exportKey('jwk', key);
       }).then(function(jwk) {
-        console.log('Poly derived key (shortcut):');
+        console.log('Poly exported key (shortcut):');
         console.log(jwk);
+        
       }).catch(function(err) {
         console.error(err);
       });

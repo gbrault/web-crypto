@@ -29,7 +29,7 @@ function deriveKey_pbkdf2_sha256(derivedKeyType, extractable, keyUsages,
       'raw', 
       password,
       {name: 'PBKDF2'}, 
-      false, 
+      true, 
       ['deriveKey']
     ).then(function(baseKey) {
       return deriveKey(

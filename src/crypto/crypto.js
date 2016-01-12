@@ -111,9 +111,15 @@ function nativeToPolyCryptoKey(key) {
   if(isPolyfillCryptoKey(key)) {
     return Promise.resolve(key);
   }
-  return exportKey('jwk', key).then(function(jwk) {
+  var format;
+  if(key.type === 'secret') {
+    format = 'raw';
+  } else {
+    format = 'jwk';
+  }
+  return exportKey(format, key).then(function(keyData) {
     return importKeyFallback(
-            'jwk', jwk, key.algorithm, key.extractable, key.usages);
+            format, keyData, key.algorithm, key.extractable, key.usages);
   });
 }
 
