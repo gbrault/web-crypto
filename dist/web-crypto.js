@@ -2949,7 +2949,7 @@ function blobToBytes(blob) {
  * Converts the specified ByteArray into a Blob.
  * 
  * @memberOf module:webcrypto.util
- * @param {ByteArray} bytes The bytes to put inside the blob.
+ * @param {ByteArray|BufferSource} bytes The bytes to put inside the blob.
  * @param {string} [type=""] The MIME type of the content of the ByteArray that
  * will be put in the blob.
  * @returns {Promise} A Promise that is resolved at success with the Blob,
