@@ -10,3 +10,5 @@ exports.util.bytesToHex = bytesToHex;
 exports.util.hexToBytes = hexToBytes;
 exports.util.stringToBytes = stringToBytes;
 exports.util.bytesToString = bytesToString;
+exports.util.blobToBytes = blobToBytes;
+exports.util.bytesToBlob = bytesToBlob;

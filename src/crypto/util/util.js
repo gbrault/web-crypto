@@ -135,7 +135,55 @@ function hexToBytes(hex) {
     bytes[i/2] = parseInt(hex.substr(i, 2), 16);
   }
   return bytes;
-}
+};
+
+/**
+ * Converts the contents of the specified Blob or File to a ByteArray.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {Blob|File} blob The Blob or File to convert into the ByteArray.
+ * @returns {Promise} A Promise that is resolved at success with the ByteArray,
+ * otherwise with an error.
+ */
+function blobToBytes(blob) {
+  return new Promise(function(resolve, reject) {
+    
+    var reader = new FileReader();
+    
+    reader.onload = function(evt) {
+      resolve(new Uint8Array(evt.target.result));
+    };
+    
+    reader.onerror = function(evt) {
+      reject(evt.target.error);
+    };
+    
+    reader.readAsArrayBuffer(blob);
+    
+  });
+};
+
+/**
+ * Converts the specified ByteArray into a Blob.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {ByteArray} bytes The bytes to put inside the blob.
+ * @param {string} [type=""] The MIME type of the content of the ByteArray that
+ * will be put in the blob.
+ * @returns {Promise} A Promise that is resolved at success with the Blob,
+ * otherwise with an error.
+ */
+function bytesToBlob(bytes, type) {
+  return new Promise(function(resolve, reject) {
+    var blob;
+    if(type) {
+      blob = new Blob([bytes], {type: type});
+    } else {
+      blob = new Blob([bytes]);
+    };
+    resolve(blob);
+  });
+};
 
 
 /**
