@@ -48,7 +48,7 @@ function CryptoKey (type, extractable, algorithm, usages, handle) {
     },
     _handle: {
       value: handle,
-      enumerable: false
+      enumerable: true
     }
   });
 }
