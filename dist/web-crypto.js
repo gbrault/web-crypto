@@ -2779,7 +2779,8 @@ exports.util.hexToBytes = hexToBytes;
 exports.util.stringToBytes = stringToBytes;
 exports.util.bytesToString = bytesToString;
 exports.util.blobToBytes = blobToBytes;
-exports.util.bytesToBlob = bytesToBlob;
+exports.util.blobToBytesSync = blobToBytesSync;
+exports.util.bytesToBlobSync = bytesToBlobSync;
 /**
  * Creates inheritance.
  * 
@@ -2946,6 +2947,20 @@ function blobToBytes(blob) {
 };
 
 /**
+ * Converts the contents of the specified Blob or File to a ByteArray.<br />
+ * <b>Note: </b> Since the function uses the FileReaderSync interfaces, it will
+ * only run inside a WebWorker.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {Blob|File} blob The Blob or File to convert into the ByteArray.
+ * @returns {ByteArray} A ByteArray containing the contents of the blob or file.
+ */
+function blobToBytesSync(blob) {
+  var fileReader = new FileReaderSync();
+  return new Uint8Array(fileReader.readAsArrayBuffer(blob));
+};
+
+/**
  * Converts the specified ByteArray into a Blob.
  * 
  * @memberOf module:webcrypto.util
@@ -2957,14 +2972,27 @@ function blobToBytes(blob) {
  */
 function bytesToBlob(bytes, type) {
   return new Promise(function(resolve, reject) {
-    var blob;
-    if(type) {
-      blob = new Blob([bytes], {type: type});
-    } else {
-      blob = new Blob([bytes]);
-    };
-    resolve(blob);
+    resolve(bytesToBlobSync(bytes, type));
   });
+};
+
+/**
+ * Converts the specified ByteArray into a Blob.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {ByteArray|BufferSource} bytes The bytes to put inside the blob.
+ * @param {string} [type=""] The MIME type of the content of the ByteArray that
+ * will be put in the blob.
+ * @returns {Blob} The blob containing the contents of the bytes.
+ */
+function bytesToBlobSync(bytes, type) {
+  var blob;
+  if(type) {
+    blob = new Blob([bytes], {type: type});
+  } else {
+    blob = new Blob([bytes]);
+  };
+  return blob;
 };
 
 

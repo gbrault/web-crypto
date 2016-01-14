@@ -415,6 +415,164 @@ otherwise with an error.
 
     
 
+    <h4 class="name" id=".blobToBytesSync"><span class="type-signature">(static) </span>blobToBytesSync<span class="signature">(blob)</span><span class="type-signature"> &rarr; {ByteArray}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Converts the contents of the specified Blob or File to a ByteArray.<br />
+<b>Note: </b> Since the function uses the FileReaderSync interfaces, it will
+only run inside a WebWorker.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>blob</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Blob</span>
+|
+
+<span class="param-type">File</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The Blob or File to convert into the ByteArray.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line175">line 175</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A ByteArray containing the contents of the blob or file.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">ByteArray</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id=".bytesToBase64URL"><span class="type-signature">(static) </span>bytesToBase64URL<span class="signature">(bytes)</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
@@ -727,7 +885,7 @@ will be put in the blob.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line176">line 176</a>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line190">line 190</a>
     </li></ul></dd>
     
 
@@ -767,6 +925,218 @@ otherwise with an error.
     <dd>
         
 <span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".bytesToBlobSync"><span class="type-signature">(static) </span>bytesToBlobSync<span class="signature">(bytes, type<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Blob}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Converts the specified ByteArray into a Blob.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>bytes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">ByteArray</span>
+|
+
+<span class="param-type">BufferSource</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The bytes to put inside the blob.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    ""
+                
+                </td>
+            
+
+            <td class="description last">The MIME type of the content of the ByteArray that
+will be put in the blob.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="crypto_util_util.js.html">crypto/util/util.js</a>, <a href="crypto_util_util.js.html#line205">line 205</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The blob containing the contents of the bytes.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Blob</span>
 
 
     </dd>
@@ -1524,7 +1894,7 @@ unicode of each character in <code>str</code> is in the range of 0 to 255.</td>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Jan 13 2016 15:54:36 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Jan 14 2016 17:55:01 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
