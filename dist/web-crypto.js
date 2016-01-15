@@ -3220,10 +3220,20 @@ function isNativeCryptoKey(key) {
  * @returns {boolean} True is key is a polyfill CryptoKey, otherwise false
  */
 function isPolyfillCryptoKey(key) {
-  return (key instanceof exports.CryptoKey);
-}
-
-
+  var isPolyKey = false;
+  if(key instanceof exports.CryptoKey) {
+    isPolyKey = true;
+    
+  } else if(isObject(key) 
+          && key.hasOwnProperty('type') 
+          && key.hasOwnProperty('extractable')
+          && key.hasOwnProperty('algorithm')
+          && key.hasOwnProperty('usages')
+          && key.hasOwnProperty('_handle')) {
+    isPolyKey = true;
+  };
+  return isPolyKey;
+};
 !function() {
   if(!global.NotSupportedError) {
     function NotSupportedError(message) {
