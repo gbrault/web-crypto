@@ -696,16 +696,11 @@ function importKey(format, keyData, algorithm, extractable, usages) {
     function fallback() {
       importKeyFallback(format, keyData, algorithm, extractable, usages)
       .then(function(key) {
-        
-        if(subtle) {
-          polyToNativeCryptoKey(key).then(function(nativeKey) {
-            resolve(nativeKey);
-          }).catch(function() {
-            resolve(key);
-          });
-        } else {
-          resolve(key);
-        }
+        // Here not try to convert key to native CryptoKey. The function
+        // polyToNativeCryptoKey would call importKey to convert the key
+        // to a native CryptoKey. But importKey would fail as before,
+        // only because of that this function was called.
+        resolve(key);
       }).catch(function(err) {
         reject(err);
       });
