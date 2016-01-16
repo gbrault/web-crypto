@@ -683,7 +683,7 @@ function importKey(format, keyData, algorithm, extractable, usages) {
       }).then(function(key) {
         resolve(key);
       }).catch(function(err) {
-        if(err.name === 'NotSupporedError') {
+        if(shouldFallBack('importKey', err.name)) {
           fallback();
         } else {
           reject(err);
