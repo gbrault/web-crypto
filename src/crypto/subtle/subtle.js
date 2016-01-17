@@ -1,4 +1,273 @@
-var algorithmOperations = {
+/**
+ * Contains the information about supported import and export formats
+ * for each algorithm. If algorithm, method or format is not included, the
+ * operation is not supported.
+ * 
+ * @private
+ * @type {object}
+ */
+var nativeImportExportSupport = {
+  'RSASSA-PKCS1-v1_5': {
+    'import': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    },
+    'export': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    }
+  },
+  'RSA-PSS': {
+    'import': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    },
+    'export': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    }
+  },
+  'RSA-OAEP': {
+    'import': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    },
+    'export': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    }
+  },
+  'ECDSA': {
+    'import': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    },
+    'export': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'jwk': true,
+        'skpi': true
+      }
+    }
+  },
+  'ECDH': {
+    'import': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'raw': true,
+        'jwk': true,
+        'skpi': true
+      }
+    },
+    'export': {
+      'private': {
+        'jwk': true,
+        'pkcs8': true
+      },
+      'public': {
+        'raw': true,
+        'jwk': true,
+        'skpi': true
+      }
+    }
+  },
+  'AES-CTR': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'AES-CBC': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'AES-CMAC': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'AES-GCM': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'AES-CFB': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'AES-KW': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'HMAC': {
+    'import': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    },
+    'export': {
+      'secret': {
+        'raw': true,
+        'jwk': true
+      }
+    }
+  },
+  'DH': {
+    'import': {
+      'private': {
+        'pkcs8': true
+      },
+      'public': {
+        'raw': true,
+        'spki': true
+      }
+    },
+    'export': {
+      'private': {
+        'raw': true,
+        'pkcs8': true
+      },
+      'public': {
+        'raw': true,
+        'spki': true
+      }
+    }
+  },
+  'CONCAT': {
+    'import': {
+      'secret': {
+        'raw': true
+      }
+    }
+  },
+  'HKDF-CTR': {
+    'import': {
+      'secret': {
+        'raw': true
+      }
+    }
+  },
+  'PBKDF2': {
+    'import': {
+      'secret': {
+        'raw': true
+      }
+    }
+  }
+};
+
+/**
+ * Contains the implemented fallback operations.
+ * 
+ * @private
+ * @type {object}
+ */
+var algorithmFallbackOperations = {
   'encrypt': {
     'RSA-OAEP': encrypt_RSA_OAEP,
     'AES-GCM': encrypt_AES_GCM
@@ -57,7 +326,8 @@ var algorithmOperations = {
     'AES-CMAC': exportKey_AES,
     'AES-GCM': exportKey_AES,
     'AES-CFB': exportKey_AES,
-    'AES-KW': exportKey_AES
+    'AES-KW': exportKey_AES,
+    'PBKDF2': exportKey_PBKDF2
   },
   'wrapKey': {},
   'unwrapKey': {}
@@ -80,7 +350,7 @@ var methodFallbackErrors = {
   'generateKey': ['OperationError'],
   'deriveKey': ['OperationError'],
   'deriveBits': [],
-  'importKey': [],
+  'importKey': ['Error'],
   'exportKey': [],
   'wrapKey': [],
   'unwrapKey': []
@@ -142,6 +412,137 @@ function KeyAlgorithm(name) {
    * @type {string}
    */
   this.name = name;
+};
+
+/**
+ * Returns the supported formats to import or export a key with the 
+ * speciefied properies.
+ * 
+ * @private
+ * @param {AlgorithmIdentifier} alg The name of the algorithm.
+ * @param {string} op The type of operation (import or export).
+ * @param {string} keyType The type of the key (secret, privat or public).
+ * @returns {Array<string>} Supported formats.
+ */
+function getNativeSupportedFormats(alg, op, keyType) {
+  var algName = alg.name || alg;
+  var supportedFormats = [];
+  if(nativeImportExportSupport[algName]
+      && nativeImportExportSupport[algName][op]
+      && nativeImportExportSupport[algName][op][keyType]) {
+
+    var formats = nativeImportExportSupport[algName][op][keyType];
+    var keys = Object.keys(formats);
+    for(var i = 0; i < keys.length; i++) {
+      if(formats[keys[i]]) {
+        supportedFormats.push(keys[i]);
+      };
+    };
+    
+  };
+  return supportedFormats;
+};
+
+/**
+ * Checks if the import method is supported for the specified parameters.
+ * 
+ * @private
+ * @param {AlgorithmIdentifier} alg The name of the algorithm.
+ * @param {string} op The type of operation (import or export).
+ * @param {string} keyType The type of the key (secret, privat or public).
+ * @param {string} format The format of the key to import.
+ * @returns {boolean} true if supported, false otherwise
+ */
+function isNativeSupported(alg, op, keyType, format) {
+  var algName = alg.name = alg;
+  var supported = false;
+  if(nativeImportExportSupport[algName]
+      && nativeImportExportSupport[algName][op]
+      && nativeImportExportSupport[algName][op][keyType]
+      && (nativeImportExportSupport[algName][op][keyType])
+              .hasOwnProperty(format)) {
+    supported = nativeImportExportSupport[algName][op][keyType][format];
+  };
+  return supported;
+};
+
+/**
+ * Sets native import support to false for the specified parameters.
+ * 
+ * @private
+ * @param {AlgorithmIdentifier} alg The name of the algorithm.
+ * @param {string} op The type of operation (import or export).
+ * @param {string} keyType The type of the key (secret, privat or public).
+ * @param {string} format The format of the key to import.
+ */
+function setNativeUnsupported(alg, op, keyType, format) {
+  var algName = alg.name || alg;
+  if(nativeImportExportSupport[algName]
+      && nativeImportExportSupport[algName][op]
+      && nativeImportExportSupport[algName][op][keyType]
+      && (nativeImportExportSupport[algName][op][keyType])
+              .hasOwnProperty(format)) {
+    nativeImportExportSupport[algName][op][keyType][format] = false;
+  };
+};
+
+/**
+ * Returns the key type (secret, private or public) for the specified
+ * key parameters.
+ * 
+ * @private
+ * @param {AlgorithmIdentifier} alg The algorithm identifier.
+ * @param {string} format The key format (raw, jwk, pkcs8 or spki).
+ * @param {object|ArrayBuffer} keyData The key data.
+ * @returns {string} The key type for the specified key parameters.
+ */
+function getKeyType(alg, format, keyData) {
+  var algName = alg.name || alg;
+  var type = null;
+  switch(algName) {
+    case 'AES-CTR':
+    case 'AES-CBC':
+    case 'AES-CMAC':
+    case 'AES-GCM':
+    case 'AES-CFB':
+    case 'AES-KW':
+    case 'HMAC':
+    case 'CONCAT':
+    case 'HKDF-CTR':
+    case 'PBKDF2':
+      type = 'secret';
+      break;
+    case 'RSASSA-PKCS1-v1_5':
+    case 'RSA-PSS':
+    case 'RSA-OAEP':
+    case 'ECDSA':
+    case 'ECDH':
+      if(format === 'pkcs8') {
+        type = 'private';
+        
+      } else if (format === 'spki') {
+        type = 'public';
+        
+      } else if (format === 'jwk' && algName !== 'DH') {
+        if(keyData.d) {
+          type = 'private';
+        } else {
+          type = 'public';
+        }
+        
+      } else if (format === 'raw' && (algName === 'ECDH' || algName === 'DH')) {
+        type = 'public';
+        
+      } else {
+        throw new NotSupportedError("Format '" + format 
+                + "' not supported for algorithm: " + algName);
+      };
+      break;
+    default:
+      throw new NotSupportedError(
+              'The algorithm is not supported: ' + algName);
+  };
+  return type;
 };
 
 /**
@@ -380,7 +781,7 @@ function normalizeAlgorithm(op, alg) {
  */
 function supportsOperation(operation, algorithm) {
   var algName = algorithm.name || algorithm;
-  return !!algorithmOperations[operation][algName];
+  return !!algorithmFallbackOperations[operation][algName];
 }
 
 /**
@@ -413,7 +814,8 @@ function ensureOperation(operation, algorithm) {
  */
 function performOperation(operation, normalizedAlgorithm, args) {
   ensureOperation(operation, normalizedAlgorithm);
-  var operationFn = algorithmOperations[operation][normalizedAlgorithm.name];
+  var operationFn = 
+          algorithmFallbackOperations[operation][normalizedAlgorithm.name];
   return operationFn.apply(this, args);
 }
 
@@ -676,6 +1078,7 @@ function exportKeyFallback(format, key) {
  */
 function importKey(format, keyData, algorithm, extractable, usages) {
   return new Promise(function(resolve, reject) {
+    // TODO: Check if isNativeSupported()? Validate performance
     if(subtle) {
       toPromise(function() {
         return subtle.importKey(
@@ -684,6 +1087,11 @@ function importKey(format, keyData, algorithm, extractable, usages) {
         resolve(key);
       }).catch(function(err) {
         if(shouldFallBack('importKey', err.name)) {
+          setNativeUnsupported(
+                  (algorithm.name || algorithm), 
+                  'import', 
+                  getKeyType(algorithm, format, keyData),
+                  format);
           fallback();
         } else {
           reject(err);
@@ -692,19 +1100,24 @@ function importKey(format, keyData, algorithm, extractable, usages) {
     } else {
       fallback();
     }
-    
+
     function fallback() {
       importKeyFallback(format, keyData, algorithm, extractable, usages)
       .then(function(key) {
-        // Here not try to convert key to native CryptoKey. The function
-        // polyToNativeCryptoKey would call importKey to convert the key
-        // to a native CryptoKey. But importKey would fail as before,
-        // only because of that this function was called.
-        resolve(key);
+        if(subtle) {
+          polyToNativeCryptoKey(key).then(function(nativeKey) {
+            resolve(nativeKey);
+          }).catch(function() {
+            resolve(key);
+          });
+        } else {
+          resolve(key);
+        }
       }).catch(function(err) {
         reject(err);
       });
-    }
+    };
+
   });
 }
 

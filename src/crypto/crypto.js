@@ -62,6 +62,8 @@ function CryptoKey (type, extractable, algorithm, usages, handle) {
  * @returns {Promise} A Promise that returns the native CryptoKey
  */
 function polyToNativeCryptoKey(key) {
+  var notSupportedMessage = "Conversion of key with algorithm '" 
+            + key.algorithm.name + "' not supported";
   
   if(isNativeCryptoKey(key)) {
     return Promise.resolve(key);
@@ -77,25 +79,29 @@ function polyToNativeCryptoKey(key) {
       key = new CryptoKey(
               key.type, true, key.algorithm, key.usages, key._handle);
     }
-    // JWK format is possible for all keys
-    return exportKeyFallback('jwk', key).then(function(jwk) {
-      return importKey('jwk', jwk, key.algorithm, extractable, key.usages);
-    }).then(function(importedKey) {
-      if(!isNativeCryptoKey(importedKey)) {
-        throw new NotSupportedError("Conversion of key with algorithm '" 
-            + key.algorithm.name + "' not supported");
-      }
-      return importedKey;
-    });
-  } else if(key.algorithm.name === 'PBKDF2') {
-    // PBKDF2 key can only be imported in raw format, but polyfill
-    // PBKDF2 CryptoKey contains key material in raw format
-    return importKey(
-            'raw', key._handle, key.algorithm, key.extractable, key.usages);
+    
+    var supportedFormats = getNativeSupportedFormats(
+            key.algorithm, 'import', key.type);
+    
+    if(supportedFormats.length > 0) {
+      return exportKeyFallback(supportedFormats[0], key).then(function(jwk) {
+        return importKey(supportedFormats[0], jwk, key.algorithm, extractable, key.usages);
+      }).then(function(importedKey) {
+        if(!isNativeCryptoKey(importedKey)) {
+          throw new NotSupportedError(notSupportedMessage);
+        }
+        return importedKey;
+      });
+    } else {
+      return Promise.reject(new NotSupportedError(notSupportedMessage));
+    };
+//  } else if(key.algorithm.name === 'PBKDF2') {
+//    // PBKDF2 key can only be imported in raw format, but polyfill
+//    // PBKDF2 CryptoKey contains key material in raw format
+//    return importKey(
+//            'raw', key._handle, key.algorithm, key.extractable, key.usages);
   } else {
-    return Promise.reject(new NotSupportedError(
-            'Conversion of key with algorithm "' 
-            + key.algorithm.name + '" not supported'));
+    return Promise.reject(new NotSupportedError(notSupportedMessage));
   }
 }
 

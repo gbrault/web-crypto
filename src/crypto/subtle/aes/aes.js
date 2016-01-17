@@ -110,11 +110,7 @@ function exportKey_AES(format, key) {
     if(!isBufferSource(data)) {
       throw new OperationError('Invalid key format.');
     }
-    if(data instanceof ArrayBuffer) {
-      result = data;
-    } else {
-      result = data.buffer;
-    }
+    result = getBuffer(data);
   } else {
     throw new NotSupportedError('Format "' + format + '" not supported');
   }

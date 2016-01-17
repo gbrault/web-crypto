@@ -95,7 +95,30 @@ function importKey_PBKDF2(format, keyData, normAlgo, extractable, usages) {
   
   var algorithm = new KeyAlgorithm('PBKDF2');
   return new CryptoKey('secret', false, algorithm, [], _handle);
-}
+};
+
+/**
+ * Returns the PBKDF2 key in the requested format.<br />
+ * <b>Note:</b> This opertaion is not specified by W3C.
+ * 
+ * @private
+ * @param {string} format The data format in which the key has to be exported.
+ * @param {CryptoKey} key The PBKDF2 CryptoKey to export.
+ * @returns {*} The PBKDF2 key in the requested format.
+ */
+function exportKey_PBKDF2(format, key) {
+  var result;
+  if (format === 'raw') {
+    var data = key._handle;
+    if(!isBufferSource(data)) {
+      throw new OperationError('Invalid key format.');
+    }
+    result = getBuffer(data);
+  } else {
+    throw new NotSupportedError('Format "' + format + '" not supported');
+  }
+  return result;
+};
 
 /**
  * Generates a new BufferSource of bits derived from a master key.<br />
