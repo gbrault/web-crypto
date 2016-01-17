@@ -1024,7 +1024,15 @@ function exportKey(format, key) {
       // Not necessary to handle 'NotSupportedError' here, because if
       // export of native key is not supported, fallback function
       // has also no possibility to export it
-      return toPromise(function() {return subtle.exportKey(format, key);});
+      return toPromise(function() {
+        return subtle.exportKey(format, key);
+      }).then(function(keyData) {
+        // IE exports JWK as ArrayBuffer
+        if(isIE && format === 'jwk' && isBufferSource(keyData)) {
+          keyData = JSON.parse(bytesToString(new Uint8Array(keyData)));
+        };
+        return keyData;
+      });
     } else {
       return Promise.reject(new NotSupportedError(
         "'key' is native CryptoKey but native Crypto object not available"));
