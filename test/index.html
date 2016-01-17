@@ -78,10 +78,10 @@
         return str;
       }
       
-      function manually(alg, op, fn) {
+      function manually(label, alg, op, fn) {
         var cell = findCell(alg, op);
         var a = document.createElement('a');
-        a.innerHTML = 'Run test (slow)';
+        a.innerHTML = label;
         a.href = '#';
         a.addEventListener('click', function(evt) {
           evt.preventDefault();
@@ -269,7 +269,7 @@
           <td class="digest unsupported"></td>
           <td class="generateKey">
             <script>
-              manually('rsa-oaep', 'generateKey', function() {
+              manually('Run test (slow)', 'rsa-oaep', 'generateKey', function() {
                 webCrypto.subtle.generateKey(
                   {
                     name: "RSA-OAEP",
@@ -729,10 +729,151 @@
           <td class="sign unsupported"></td>
           <td class="verify unsupported"></td>
           <td class="digest unsupported"></td>
-          <td class="generateKey"></td>
-          <td class="deriveKey"></td>
-          <td class="deriveBits"></td>
-          <td class="importKey"></td>
+          <td class="generateKey">
+            <script>
+              manually('Run test (prompt)', 'pbkdf2', 'generateKey', function() {
+                webCrypto.subtle.generateKey(
+                    {name: 'PBKDF2'},
+                    false,
+                    ["deriveKey", "deriveBits"])
+                .then(ok('pbkdf2', 'generateKey', 'Yes'))
+                .catch(err('pbkdf2', 'generateKey', 'No'));
+              });
+            </script>
+          </td>
+          <td class="deriveKey">
+            <script>
+              
+              webCrypto.subtle.importKey(
+                  "raw",
+                  webCrypto.getRandomValues(new Uint8Array(16)),
+                  {name: "PBKDF2"},
+                  true,
+                  ["deriveKey", "deriveBits"])
+              .then(function(key) {
+                var alg = {
+                  name: 'AES-GCM',
+                  length: 256
+                };
+                
+                // SHA-1
+                webCrypto.subtle.deriveKey(
+                  {
+                    name: "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-1"}
+                  }, key, alg, false, ["encrypt", "decrypt"])
+                .then(ok("pbkdf2", "deriveKey", "SHA-1"))
+                .catch(err("pbkdf2", "deriveKey", "SHA-1"));
+        
+                // SHA-256
+                webCrypto.subtle.deriveKey(
+                  {
+                    name: "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-256"}
+                  }, key, alg, false, ["encrypt", "decrypt"])
+                .then(ok("pbkdf2", "deriveKey", "SHA-256"))
+                .catch(err("pbkdf2", "deriveKey", "SHA-256"));
+                
+                // SHA-384
+                webCrypto.subtle.deriveKey(
+                  {
+                    name: "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-384"}
+                  }, key, alg, false, ["encrypt", "decrypt"])
+                .then(ok("pbkdf2", "deriveKey", "SHA-384"))
+                .catch(err("pbkdf2", "deriveKey", "SHA-384"));
+        
+                // SHA-512
+                webCrypto.subtle.deriveKey(
+                  {
+                    name: "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-512"}
+                  }, key, alg, false, ["encrypt", "decrypt"])
+                .then(ok("pbkdf2", "deriveKey", "SHA-512"))
+                .catch(err("pbkdf2", "deriveKey", "SHA-512"));
+              })
+              .catch(err('pbkdf2', 'deriveKey', 'N/A'));
+            </script>
+          </td>
+          <td class="deriveBits">
+            <script>
+              webCrypto.subtle.importKey(
+                  "raw",
+                  webCrypto.getRandomValues(new Uint8Array(16)),
+                  {name: "PBKDF2"},
+                  true,
+                  ["deriveKey", "deriveBits"])
+              .then(function(key) {
+                
+                // SHA-1
+                webCrypto.subtle.deriveBits(
+                  {
+                    "name": "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-1"}
+                  }, key, 128)
+                .then(ok("pbkdf2", "deriveBits", "SHA-1"))
+                .catch(err("pbkdf2", "deriveBits", "SHA-1"));
+       
+                
+                // SHA-256
+                webCrypto.subtle.deriveBits(
+                  {
+                    "name": "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-256"}
+                  }, key, 128)
+                .then(ok("pbkdf2", "deriveBits", "SHA-256"))
+                .catch(err("pbkdf2", "deriveBits", "SHA-256"));
+                
+                // SHA-384
+                webCrypto.subtle.deriveBits(
+                  {
+                    "name": "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-384"}
+                  }, key, 128)
+                .then(ok("pbkdf2", "deriveBits", "SHA-384"))
+                .catch(err("pbkdf2", "deriveBits", "SHA-384"));
+        
+                // SHA-512
+                webCrypto.subtle.deriveBits(
+                  {
+                    "name": "PBKDF2",
+                    salt: webCrypto.getRandomValues(new Uint8Array(16)),
+                    iterations: 1000,
+                    hash: {name: "SHA-512"}
+                  }, key, 128)
+                .then(ok("pbkdf2", "deriveBits", "SHA-512"))
+                .catch(err("pbkdf2", "deriveBits", "SHA-512"));
+        
+              })
+              .catch(err('pbkdf2', 'deriveBits', 'N/A'));
+            </script>
+          </td>
+          <td class="importKey">
+            <script>
+              webCrypto.subtle.importKey(
+                  "raw",
+                  webCrypto.getRandomValues(new Uint8Array(16)),
+                  {name: "PBKDF2"},
+                  true,
+                  ["deriveKey", "deriveBits"])
+              .then(ok('pbkdf2', 'importKey', 'Yes'))
+              .catch(err('pbkdf2', 'importKey', 'No'));
+            </script>
+          </td>
           <td class="exportKey unsupported"></td>
           <td class="wrapKey unsupported"></td>
           <td class="unwrapKey unsupported"></td>              
