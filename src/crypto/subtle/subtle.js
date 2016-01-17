@@ -349,7 +349,7 @@ var methodFallbackErrors = {
   'digest': [],
   'generateKey': ['OperationError'],
   'deriveKey': ['OperationError'],
-  'deriveBits': [],
+  'deriveBits': ['OperationError'],
   'importKey': ['Error'],
   'exportKey': [],
   'wrapKey': [],
@@ -1760,7 +1760,6 @@ function deriveKeyFallback(
  * @returns {Promise} A Promise that returns the generated BufferSource.
  */
 function deriveBits(algorithm, baseKey, length) {
-  
   return new Promise(function(resolve, reject) {
     // deriveBits is not supported in IE
     if(isW3C && subtle) {
@@ -1781,6 +1780,8 @@ function deriveBits(algorithm, baseKey, length) {
     function fallback() {
       nativeToPolyCryptoKey(baseKey).then(function(polyBaseKey) {
         return deriveBitsFallback(algorithm, polyBaseKey, length);
+      }).then(function(result) {
+        resolve(result);
       }).catch(function(err) {
         reject(err);
       });
@@ -1805,9 +1806,7 @@ function deriveBits(algorithm, baseKey, length) {
  */
 function deriveBitsFallback(algorithm, baseKey, length) {
   return new Promise(function(resolve, reject) {
-    
     var normalizedAlgorithm = normalizeAlgorithm('deriveBits', algorithm);
-    
     if(normalizedAlgorithm.name !== baseKey.algorithm.name) {
       throw new InvalidAccessError('Key not usable with this algorithm');
     }
