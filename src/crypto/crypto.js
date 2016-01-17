@@ -137,6 +137,8 @@ function nativeToPolyCryptoKey(key) {
  * @param {Int8Array | Uint8Array | Uint16Array | Int32Array | Uint32Array} 
  * typedArray An integer-based TypedArray which is filled with random numbers. 
  * All elements in the array are going to be overridden.
+ * @returns {Int8Array | Uint8Array | Uint16Array | Int32Array | Uint32Array}
+ * The filled array.
  */
 function getRandomValues(typedArray) {
   if(globalCrypto) {
@@ -146,4 +148,5 @@ function getRandomValues(typedArray) {
   } else {
     throw new NotSupportedError("Function 'getRandomValues' not supported");
   }
+  return typedArray;
 }
