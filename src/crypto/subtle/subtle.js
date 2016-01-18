@@ -1350,7 +1350,8 @@ function wrapKey(format, key, wrappingKey, wrapAlgorithm) {
       ]).then(function(nativeKeys) {
         if(isW3C) {
           return toPromise(function() {
-            subtle.wrapKey(format, nativeKeys[0], nativeKeys[1], wrapAlgorithm);
+            return subtle.wrapKey(
+                    format, nativeKeys[0], nativeKeys[1], wrapAlgorithm);
           });
         } else {
           return exportKey(format, nativeKeys[0]).then(function(expKey) {
@@ -1485,7 +1486,7 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       polyToNativeCryptoKey(unwrappingKey).then(function(nativeUnwrappingKey) {
         if(isW3C) {
           return toPromise(function() {
-            subtle.unwrapKey(
+            return subtle.unwrapKey(
                     format, wrappedKey, nativeUnwrappingKey, 
                     unwrapAlgorithm, unwrappedKeyAlgorithm, extractable, 
                     keyUsages)
@@ -1641,7 +1642,7 @@ function deriveKey(algorithm, baseKey, derivedKeyType, extractable, keyUsages) {
     if(isW3C && subtle) {
       polyToNativeCryptoKey(baseKey).then(function(nativeBaseKey) {
         return toPromise(function() {
-          subtle.deriveKey(algorithm, nativeBaseKey, derivedKeyType, 
+          return subtle.deriveKey(algorithm, nativeBaseKey, derivedKeyType, 
                 extractable, keyUsages)
         });
       }).then(function(key) {
@@ -1770,7 +1771,7 @@ function deriveBits(algorithm, baseKey, length) {
     // deriveBits is not supported in IE
     if(isW3C && subtle) {
       return toPromise(function() {
-        subtle.deriveBits(algorithm, baseKey, length);
+        return subtle.deriveBits(algorithm, baseKey, length);
       }).then(function(bits) {
         resolve(bits);
       }).catch(function(err) {
