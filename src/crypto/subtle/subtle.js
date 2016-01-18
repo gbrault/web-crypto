@@ -350,7 +350,7 @@ var methodFallbackErrors = {
   'generateKey': ['OperationError'],
   'deriveKey': ['OperationError'],
   'deriveBits': ['OperationError'],
-  'importKey': ['Error'],
+  'importKey': ['Error', 'PBKDF2' /* Edge */],
   'exportKey': [],
   'wrapKey': [],
   'unwrapKey': []
@@ -1349,8 +1349,9 @@ function wrapKey(format, key, wrappingKey, wrapAlgorithm) {
         polyToNativeCryptoKey(wrappingKey)
       ]).then(function(nativeKeys) {
         if(isW3C) {
-          return subtle.wrapKey(
-                  format, nativeKeys[0], nativeKeys[1], wrapAlgorithm);
+          return toPromise(function() {
+            subtle.wrapKey(format, nativeKeys[0], nativeKeys[1], wrapAlgorithm);
+          });
         } else {
           return exportKey(format, nativeKeys[0]).then(function(expKey) {
             var bytes;
@@ -1483,9 +1484,12 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
     if(subtle) {
       polyToNativeCryptoKey(unwrappingKey).then(function(nativeUnwrappingKey) {
         if(isW3C) {
-          return subtle.unwrapKey(format, wrappedKey, nativeUnwrappingKey, 
-                  unwrapAlgorithm, unwrappedKeyAlgorithm, extractable, 
-                  keyUsages);
+          return toPromise(function() {
+            subtle.unwrapKey(
+                    format, wrappedKey, nativeUnwrappingKey, 
+                    unwrapAlgorithm, unwrappedKeyAlgorithm, extractable, 
+                    keyUsages)
+          });
         } else {
           return decrypt(unwrapAlgorithm, nativeUnwrappingKey, wrappedKey)
           .then(function(keyData) {
@@ -1636,8 +1640,10 @@ function deriveKey(algorithm, baseKey, derivedKeyType, extractable, keyUsages) {
     // deriveKey is not supported in IE
     if(isW3C && subtle) {
       polyToNativeCryptoKey(baseKey).then(function(nativeBaseKey) {
-        return subtle.deriveKey(algorithm, nativeBaseKey, derivedKeyType, 
-                extractable, keyUsages);
+        return toPromise(function() {
+          subtle.deriveKey(algorithm, nativeBaseKey, derivedKeyType, 
+                extractable, keyUsages)
+        });
       }).then(function(key) {
         resolve(key);
       }).catch(function(err) {
@@ -1763,8 +1769,9 @@ function deriveBits(algorithm, baseKey, length) {
   return new Promise(function(resolve, reject) {
     // deriveBits is not supported in IE
     if(isW3C && subtle) {
-      return subtle.deriveBits(algorithm, baseKey, length)
-      .then(function(bits) {
+      return toPromise(function() {
+        subtle.deriveBits(algorithm, baseKey, length);
+      }).then(function(bits) {
         resolve(bits);
       }).catch(function(err) {
         if(shouldFallBack('deriveBits', err.name)) {
