@@ -234,10 +234,14 @@ function jwkToBytes(jwk) {
 function bytesToJwk(bytes) {
   var jwk;
   try {
+    var errorMsg = 'JWK could not be parsed. Invalid data format';
     jwk = JSON.parse(bytesToString(bytes, true));
   } catch(err) {
-    throw new DataError('JWK could not be parsed. Invalid data format');
+    throw new DataError(errorMsg);
   }
+  if(!isJWK(jwk)) {
+    throw new DataError(errorMsg);
+  };
   return jwk;
 }
 

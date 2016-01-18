@@ -2879,14 +2879,12 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
                     keyUsages)
           });
         } else {
+          // IE does not support unwrapKey
           return decrypt(unwrapAlgorithm, nativeUnwrappingKey, wrappedKey)
           .then(function(keyData) {
             if(format === 'jwk') {
               keyData = bytesToJwk(new Uint8Array(keyData));
             };
-            if(!isJWK(keyData)) {
-              throw new DataError('"wrappedKey" in no valid JWK');
-            }
             return importKey(format, keyData, unwrappedKeyAlgorithm, 
                     extractable, keyUsages);
           });
@@ -2949,7 +2947,7 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
  */
 function unwrapKeyFallback(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       unwrappedKeyAlgorithm, extractable, keyUsages) {
-        
+
   return new Promise(function(resolve, reject) {
     
     var algorithm = unwrapAlgorithm;
@@ -3469,10 +3467,14 @@ function jwkToBytes(jwk) {
 function bytesToJwk(bytes) {
   var jwk;
   try {
+    var errorMsg = 'JWK could not be parsed. Invalid data format';
     jwk = JSON.parse(bytesToString(bytes, true));
   } catch(err) {
-    throw new DataError('JWK could not be parsed. Invalid data format');
+    throw new DataError(errorMsg);
   }
+  if(!isJWK(jwk)) {
+    throw new DataError(errorMsg);
+  };
   return jwk;
 }
 

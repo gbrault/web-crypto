@@ -1492,14 +1492,12 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
                     keyUsages)
           });
         } else {
+          // IE does not support unwrapKey
           return decrypt(unwrapAlgorithm, nativeUnwrappingKey, wrappedKey)
           .then(function(keyData) {
             if(format === 'jwk') {
               keyData = bytesToJwk(new Uint8Array(keyData));
             };
-            if(!isJWK(keyData)) {
-              throw new DataError('"wrappedKey" in no valid JWK');
-            }
             return importKey(format, keyData, unwrappedKeyAlgorithm, 
                     extractable, keyUsages);
           });
@@ -1562,7 +1560,7 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
  */
 function unwrapKeyFallback(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       unwrappedKeyAlgorithm, extractable, keyUsages) {
-        
+
   return new Promise(function(resolve, reject) {
     
     var algorithm = unwrapAlgorithm;
