@@ -3,13 +3,31 @@ var isIE = !!global.msCrypto,
     isW3C = !!global.crypto,
     globalCrypto = global.crypto || global.msCrypto,
     subtle;
+
+// The Key in IE has the property "keyUsages" instead of the property
+// "usages" as specied in the latest W3C Web Cryptography API.
+// But the property "keyUsages" is always null and read-only. Fix this
+// by removing the property "keyUsages" and adding the writeable
+// property "usages".
+if(isIE && global.Key) {
+  
+  // Remove property "keyUsages"
+  delete Key.prototype.keyUsage;
+  
+  // Add property "key"
+  Object.defineProperty(Key.prototype, "usages", {
+    enumerable: true,
+  	writable: true,
+    value: null
+  });
+};
     
 if(globalCrypto) subtle = globalCrypto.subtle;
 
 if(asmCrypto) {
   asmCrypto.random.skipSystemRNGWarning = true;
   asmCrypto.random.allowWeak = true;
-}
+};
 
 /**
  * Creates a new CryptoKey object.
@@ -85,21 +103,18 @@ function polyToNativeCryptoKey(key) {
     
     if(supportedFormats.length > 0) {
       return exportKeyFallback(supportedFormats[0], key).then(function(jwk) {
-        return importKey(supportedFormats[0], jwk, key.algorithm, extractable, key.usages);
+        return importKey(supportedFormats[0], jwk, key.algorithm, 
+                extractable, key.usages);
       }).then(function(importedKey) {
         if(!isNativeCryptoKey(importedKey)) {
           throw new NotSupportedError(notSupportedMessage);
         }
+        importedKey.usages = key.usages;
         return importedKey;
       });
     } else {
       return Promise.reject(new NotSupportedError(notSupportedMessage));
     };
-//  } else if(key.algorithm.name === 'PBKDF2') {
-//    // PBKDF2 key can only be imported in raw format, but polyfill
-//    // PBKDF2 CryptoKey contains key material in raw format
-//    return importKey(
-//            'raw', key._handle, key.algorithm, key.extractable, key.usages);
   } else {
     return Promise.reject(new NotSupportedError(notSupportedMessage));
   }

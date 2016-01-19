@@ -18,13 +18,31 @@ var isIE = !!global.msCrypto,
     isW3C = !!global.crypto,
     globalCrypto = global.crypto || global.msCrypto,
     subtle;
+
+// The Key in IE has the property "keyUsages" instead of the property
+// "usages" as specied in the latest W3C Web Cryptography API.
+// But the property "keyUsages" is always null and read-only. Fix this
+// by removing the property "keyUsages" and adding the writeable
+// property "usages".
+if(isIE && global.Key) {
+  
+  // Remove property "keyUsages"
+  delete Key.prototype.keyUsage;
+  
+  // Add property "key"
+  Object.defineProperty(Key.prototype, "usages", {
+    enumerable: true,
+  	writable: true,
+    value: null
+  });
+};
     
 if(globalCrypto) subtle = globalCrypto.subtle;
 
 if(asmCrypto) {
   asmCrypto.random.skipSystemRNGWarning = true;
   asmCrypto.random.allowWeak = true;
-}
+};
 
 /**
  * Creates a new CryptoKey object.
@@ -100,21 +118,18 @@ function polyToNativeCryptoKey(key) {
     
     if(supportedFormats.length > 0) {
       return exportKeyFallback(supportedFormats[0], key).then(function(jwk) {
-        return importKey(supportedFormats[0], jwk, key.algorithm, extractable, key.usages);
+        return importKey(supportedFormats[0], jwk, key.algorithm, 
+                extractable, key.usages);
       }).then(function(importedKey) {
         if(!isNativeCryptoKey(importedKey)) {
           throw new NotSupportedError(notSupportedMessage);
         }
+        importedKey.usages = key.usages;
         return importedKey;
       });
     } else {
       return Promise.reject(new NotSupportedError(notSupportedMessage));
     };
-//  } else if(key.algorithm.name === 'PBKDF2') {
-//    // PBKDF2 key can only be imported in raw format, but polyfill
-//    // PBKDF2 CryptoKey contains key material in raw format
-//    return importKey(
-//            'raw', key._handle, key.algorithm, key.extractable, key.usages);
   } else {
     return Promise.reject(new NotSupportedError(notSupportedMessage));
   }
@@ -1737,10 +1752,10 @@ var methodFallbackErrors = {
   'generateKey': ['OperationError'],
   'deriveKey': ['OperationError'],
   'deriveBits': ['OperationError'],
-  'importKey': ['Error', 'PBKDF2' /* Edge */],
+  'importKey': ['Error'],
   'exportKey': [],
   'wrapKey': [],
-  'unwrapKey': []
+  'unwrapKey': ['Error']
 };
 
 /**
@@ -2067,23 +2082,41 @@ function getJWKUsageMapping(use) {
 
 /**
  * This function decides based on the error name, wether the fallback function
- * should be used for the specified method.
+ * should be used for the specified algorithm and method.
  * 
  * @private
+ * @param {AlgorithmIdentifier} algorithm The algorithm
  * @param {string} method The name of the method.
- * @param {string} errorName The name ot the error.
+ * @param {*} reason The reason for the fail.
  * @returns {boolean} true if fallback function should be used, false otherwise
  */
-function shouldFallBack(method, errorName) {
+function shouldFallBack(algorithm, method, reason) {
   
-  var methodErrors = methodFallbackErrors[method];
-  if(!methodErrors) {
-    throw new NotSupportedError('Unkown method: ' + method);
+  var fallback = false;
+  var algName = algorithm.name || algorithm;
+  
+  if(reason instanceof Error || reason instanceof DOMException) {
+    var errorName = reason.name;
+    var methodErrors = methodFallbackErrors[method];
+    if(!methodErrors) {
+      throw new NotSupportedError('Unkown method: ' + method);
+    };
+
+    fallback = (methodFallbackErrors['default'].indexOf(errorName) !== -1)
+            || (methodErrors.indexOf(errorName) !== -1);  
+    
+  } else if(reason instanceof Object && reason.name) {
+    // Edge return algorithm object on error. Always use fall back function.
+    if(reason.name === algName) {
+      fallback = true;
+    };
+    
+  } else if(reason instanceof Event && reason.type && reason.type === 'error') {
+    // IE return event with type "error" on error. Always use fall back 
+    // function.
+    fallback = true;
   };
-  
-  return (methodFallbackErrors['default'].indexOf(errorName) !== -1)
-          || (methodErrors.indexOf(errorName) !== -1);
-  
+  return fallback;
 };
 
 /**
@@ -2102,12 +2135,12 @@ function normalizeAlgorithm(op, alg) {
     return normalizeAlgorithm(op, {name: alg});
   } else {
 
-    var algName = alg.name.toUpperCase().replace('V','v');
+    alg.name = alg.name.toUpperCase().replace('V','v');
     
     ensureOperation(op, alg);
     
     var normAlg;
-    switch (algName) {
+    switch (alg.name) {
       case 'SHA-1':
       case 'SHA-256':
       case 'SHA-384':
@@ -2125,7 +2158,7 @@ function normalizeAlgorithm(op, alg) {
         } else if(op === 'importKey' || op === 'exportKey') {
           normAlg = new Algorithm().init(alg);
         } else {
-          throw new NotSupportedError("Normalizing '" + algName 
+          throw new NotSupportedError("Normalizing '" + alg.name 
                   + "' algorithm for op '" + op + "' not supported");
         }
         break;
@@ -2138,7 +2171,7 @@ function normalizeAlgorithm(op, alg) {
         } else if(op === 'importKey') {
           normAlg = new RsaHashedImportParams().init(alg);
         } else {
-          throw new NotSupportedError("Normalizing '" + algName 
+          throw new NotSupportedError("Normalizing '" + alg.name 
                   + "' algorithm for op '" + op + "' not supported");
         }
         break;
@@ -2148,7 +2181,7 @@ function normalizeAlgorithm(op, alg) {
         } else if(op === 'deriveBits') {
           normAlg = new Pbkdf2Params().init(alg);
         } else {
-          throw new NotSupportedError("Normalizing '" + algName 
+          throw new NotSupportedError("Normalizing '" + alg.name 
                   + "' algorithm for op '" + op + "' not supported");
         }
         break;
@@ -2250,7 +2283,7 @@ function digest(algorithm, data) {
       .then(function(hash) {
         resolve(hash);
       }).catch(function(err) {
-        if(shouldFallBack('digest', err.name)) {
+        if(shouldFallBack(algorithm, 'digest', err)) {
           fallback();
         } else {
           reject(err);
@@ -2308,9 +2341,12 @@ function generateKey(algorithm, extractable, keyUsages) {
       toPromise(function() {
         return subtle.generateKey(algorithm, extractable, keyUsages);
       }).then(function(key) {
+        if(isIE) {
+          key.usages = keyUsages;
+        };
         resolve(key);
       }).catch(function(err) {
-        if(shouldFallBack('generateKey', err.name)) {
+        if(shouldFallBack(algorithm, 'generateKey', err)) {
           fallback();
         } else {
           reject(err);
@@ -2479,9 +2515,12 @@ function importKey(format, keyData, algorithm, extractable, usages) {
         return subtle.importKey(
                 format, keyData, algorithm, extractable, usages);
       }).then(function(key) {
+        if(isIE) {
+          key.usages = usages;
+        };
         resolve(key);
       }).catch(function(err) {
-        if(shouldFallBack('importKey', err.name)) {
+        if(shouldFallBack(algorithm, 'importKey', err)) {
           setNativeUnsupported(
                   (algorithm.name || algorithm), 
                   'import', 
@@ -2577,7 +2616,6 @@ function importKeyFallback(format, keyData, algorithm, extractable, usages) {
  */
 function encrypt(algorithm, key, data) {
   return new Promise(function(resolve, reject) {
-    
     if(subtle) {
       polyToNativeCryptoKey(key).then(function(nativeKey) {
         return toPromise(function() {
@@ -2585,7 +2623,7 @@ function encrypt(algorithm, key, data) {
       }).then(function(ciphertext) {
         resolve(ciphertext);
       }).catch(function(err) {
-        if(shouldFallBack('encrypt', err.name)) {
+        if(shouldFallBack(algorithm, 'encrypt', err)) {
           fallback();
         } else {
           reject(err);
@@ -2661,7 +2699,7 @@ function decrypt(algorithm, key, data) {
       }).then(function(plaintext) {
         resolve(plaintext);
       }).catch(function(err) {
-        if(shouldFallBack('decrypt', err.name)) {
+        if(shouldFallBack(algorithm, 'decrypt', err)) {
           fallback();
         } else {
           reject(err);
@@ -2754,7 +2792,7 @@ function wrapKey(format, key, wrappingKey, wrapAlgorithm) {
       }).then(function(wrappedKey) {
         resolve(wrappedKey);
       }).catch(function(err) {
-        if(shouldFallBack('wrapKey', err.name)) {
+        if(shouldFallBack(wrapAlgorithm, 'wrapKey', err)) {
           fallback();
         } else {
           reject(err);
@@ -2797,6 +2835,8 @@ function wrapKey(format, key, wrappingKey, wrapAlgorithm) {
  */
 function wrapKeyFallback(format, key, wrappingKey, wrapAlgorithm) {
   
+  // TODO: Use native encrypt as fallback?
+  
   return new Promise(function(resolve, reject) {
     
     try {
@@ -2819,9 +2859,9 @@ function wrapKeyFallback(format, key, wrappingKey, wrapAlgorithm) {
     if(!key.extractable) {
       throw new InvalidAccessError("'key' is not extractable");
     }
-    
+
     var expKey = performOperation('exportKey', key.algorithm, [format, key]);
-    
+
     var bytes;
     if(format === 'jwk') {
       bytes = jwkToBytes(expKey);
@@ -2835,7 +2875,7 @@ function wrapKeyFallback(format, key, wrappingKey, wrapAlgorithm) {
               [normalizedAlgorithm, wrappingKey, bytes]);
     } else if(supportsOperation('encrypt', normalizedAlgorithm)) {
       result = performOperation('encrypt', normalizedAlgorithm, 
-              [normalizedAlgorithm, wrappingKey, bytes]);
+              [normalizedAlgorithm, wrappingKey, bytes]);     
     } else {
       throw new NotSupportedError(
               "The operation is not supported by algorithm '" 
@@ -2892,9 +2932,9 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       }).then(function(unwrappedKey) {
         resolve(unwrappedKey);
       }).catch(function(err) {
-        if(shouldFallBack('unwrapKey', err.name)) {
+        if(shouldFallBack(unwrapAlgorithm, 'unwrapKey', err)) {
           fallback();
-        } else {
+        } else { 
           reject(err);
         }
       });
@@ -2948,6 +2988,8 @@ function unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
 function unwrapKeyFallback(format, wrappedKey, unwrappingKey, unwrapAlgorithm,
       unwrappedKeyAlgorithm, extractable, keyUsages) {
 
+  // TODO: Use native decrypt as fallback?
+  
   return new Promise(function(resolve, reject) {
     
     var algorithm = unwrapAlgorithm;
@@ -3033,7 +3075,7 @@ function deriveKey(algorithm, baseKey, derivedKeyType, extractable, keyUsages) {
       }).then(function(key) {
         resolve(key);
       }).catch(function(err) {
-        if(shouldFallBack('deriveKey', err.name)) {
+        if(shouldFallBack(algorithm, 'deriveKey', err)) {
           fallback();
         } else {
           reject(err);
@@ -3160,7 +3202,7 @@ function deriveBits(algorithm, baseKey, length) {
       }).then(function(bits) {
         resolve(bits);
       }).catch(function(err) {
-        if(shouldFallBack('deriveBits', err.name)) {
+        if(shouldFallBack(algorithm, 'deriveBits', err)) {
           fallback();
         } else {
           reject(err);
