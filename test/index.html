@@ -623,8 +623,72 @@
         -->
         <tr id="aes-gcm">
           <td class="algName">AES-GCM</td>
-          <td class="encrypt"></td>
-          <td class="decrypt"></td>
+          <td class="encrypt">
+            <script>
+              webCrypto.subtle.generateKey(
+                {
+                  name: "AES-GCM",
+                  length: 256
+                }, 
+                false, 
+                ["encrypt"])
+              .then(function(key){
+                webCrypto.subtle.encrypt(
+                  {
+                    name: "AES-GCM",
+                    iv: webCrypto.getRandomValues(new Uint8Array(12)),
+                    tagLength: 128
+                  }, 
+                  key, 
+                  new Uint8Array([0, 16, 32, 64]))
+                .then(ok("aes-gcm", "encrypt", "Yes"))
+                .catch(err("aes-gcm", "encrypt", "No"));
+              })
+              .catch(err("aes-gcm", "encrypt", "N/A"));           
+            </script>
+          </td>
+          <td class="decrypt">
+            <script>
+              (function scope() {
+                var key;
+                var iv = webCrypto.getRandomValues(new Uint8Array(12));
+                webCrypto.subtle.generateKey(
+                  {
+                    name: "AES-GCM",
+                    length: 256
+                  }, 
+                  true, 
+                  ["encrypt", "decrypt"])
+                .then(function(k){
+                  key = k;
+                  return webCrypto.subtle.encrypt(
+                    {
+                      name: "AES-GCM",
+                      iv: iv,
+                      tagLength: 128
+                    }, 
+                    key, 
+                    new Uint8Array([0, 16, 32, 64]));
+                })
+                .then(function(encrypted) {
+                  webCrypto.subtle.decrypt(
+                    {
+                      name: "AES-GCM",
+                      iv: iv,
+                      tagLength: 128
+                    },
+                    key,
+                    encrypted)
+                  .then(ok("aes-gcm", "decrypt", "Yes"))
+                  //.catch(err("aes-gcm", "decrypt", "No"));
+                  .catch(function(err) {
+                    console.error(err);
+                  });
+                })
+                .catch(err("aes-gcm", "decrypt", "N/A"));
+              })();
+            </script>
+          </td>
           <td class="sign unsupported"></td>
           <td class="verify unsupported"></td>
           <td class="digest unsupported"></td>
