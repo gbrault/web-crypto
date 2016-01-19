@@ -665,8 +665,103 @@
           <td class="deriveBits unsupported"></td>
           <td class="importKey"></td>
           <td class="exportKey"></td>
-          <td class="wrapKey"></td>
-          <td class="unwrapKey"></td>              
+          <td class="wrapKey">
+            <script>
+              
+              var aesGcmAlg = {
+                name: "AES-GCM",
+                length: 256
+              };
+              
+              webCrypto.subtle.generateKey(
+                aesGcmAlg, 
+                true, 
+                ["wrapKey", "unwrapKey", "encrypt", "decrypt"]
+              ).then(function(wrappingKey) {
+                  
+                  // AES-GCM
+                  webCrypto.subtle.generateKey(
+                    {
+                      name: "AES-GCM",
+                      length: 256
+                    },
+                    true, ["encrypt", "decrypt"]
+                  )
+                  .then(function(key) {
+                    webCrypto.subtle.wrapKey(
+                      "raw", 
+                      key, 
+                      wrappingKey, 
+                      {
+                        name: "AES-GCM",
+                        iv: new Uint8Array(12)
+                      })
+                    .then(ok("aes-gcm", "wrapKey", "AES-GCM (raw)"))
+                    .catch(err("aes-gcm", "wrapKey", "AES-GCM (raw)"));
+                  })
+                  .catch(err("aes-gcm", "wrapKey", "AES-GCM (N/A)"));
+                
+                })
+                .catch(err("aes-gcm", "wrapKey", "N/A"));           
+            </script>            
+          </td>
+          <td class="unwrapKey">
+            <script>
+              
+              var aesGcmAlg = {
+                name: "AES-GCM",
+                length: 256
+              };
+              
+              webCrypto.subtle.generateKey(
+                aesGcmAlg, 
+                true, 
+                ["wrapKey", "unwrapKey", "encrypt", "decrypt"]
+              ).then(function(wrappingKey) {
+                  
+                  // AES-GCM
+                  webCrypto.subtle.generateKey(
+                    {
+                      name: "AES-GCM",
+                      length: 256
+                    },
+                    true, 
+                    ["encrypt", "decrypt"]
+                  )
+                  .then(function(key) {
+                    return webCrypto.subtle.wrapKey(
+                      "raw", 
+                      key, 
+                      wrappingKey, 
+                      {
+                        name: 'AES-GCM',
+                        iv: new Uint8Array(12)
+                      })
+                    .then(function(keyData) {
+                      return webCrypto.subtle.unwrapKey(
+                        'raw', 
+                        keyData, 
+                        wrappingKey, 
+                        {
+                          name: "AES-GCM",
+                          iv: new Uint8Array(12)
+                        },
+                        {
+                          name: "AES-GCM",
+                          length: 256
+                        },
+                        true, 
+                        ["encrypt", "decrypt"]);
+                    })
+                    .then(ok("aes-gcm", "unwrapKey", "AES-GCM (raw)"))
+                    .catch(err("aes-gcm", "unwrapKey", "AES-GCM (raw)"));
+                  })
+                  .catch(err("aes-gcm", "wrapKey", "AES-GCM (N/A)"));
+                
+                })
+                .catch(err("aes-gcm", "wrapKey", "N/A"));           
+            </script>              
+          </td>              
         </tr>
         
         <!--
