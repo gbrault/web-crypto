@@ -659,7 +659,7 @@
                   }, 
                   true, 
                   ["encrypt", "decrypt"])
-                .then(function(k){
+                .then(function(k) {
                   key = k;
                   return webCrypto.subtle.encrypt(
                     {
@@ -671,7 +671,7 @@
                     new Uint8Array([0, 16, 32, 64]));
                 })
                 .then(function(encrypted) {
-                  webCrypto.subtle.decrypt(
+                  return webCrypto.subtle.decrypt(
                     {
                       name: "AES-GCM",
                       iv: iv,
@@ -680,10 +680,7 @@
                     key,
                     encrypted)
                   .then(ok("aes-gcm", "decrypt", "Yes"))
-                  //.catch(err("aes-gcm", "decrypt", "No"));
-                  .catch(function(err) {
-                    console.error(err);
-                  });
+                  .catch(err("aes-gcm", "decrypt", "No"));
                 })
                 .catch(err("aes-gcm", "decrypt", "N/A"));
               })();
