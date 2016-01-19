@@ -2713,13 +2713,29 @@ function decrypt(algorithm, key, data) {
     
     if(subtle) {
       
-      // Add default tagLength if not specified to prevent error in Edge
-      if((algorithm.name || algorithm) === 'AES-GCM' && !algorithm.tagLength) {
+      
+      if((algorithm.name || algorithm) === 'AES-GCM') {
+        
         if(isString(algorithm)) {
           algorithm = {name: algorithm};
         };
-        algorithm.tagLength = 128;
-      };      
+        
+        // Add default tagLength if not specified to prevent error in Edge
+        if(!algorithm.tagLength) {
+          algorithm.tagLength = 128;
+        };
+        
+        // Split ciphertext and tag and add tag to algorithm objekt to prevent 
+        // error in IE11
+        if(isIE) {
+          // tag is at the end of the data
+          algorithm.tag = data.slice(
+                  data.byteLength - (algorithm.tagLength / 8), 
+                  data.byteLength);
+          data = data.slice(0, data.byteLength - (algorithm.tagLength / 8));
+        };
+        
+      };
       
       polyToNativeCryptoKey(key).then(function(nativeKey) {
         return toPromise(function() {
