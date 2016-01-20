@@ -144,19 +144,26 @@ function polyToNativeCryptoKey(key) {
  * @returns {Promise} A Promise that returns the polyfill CryptoKey
  */
 function nativeToPolyCryptoKey(key) {
+  
   if(isPolyfillCryptoKey(key)) {
     return Promise.resolve(key);
-  }
-  var format;
-  if(key.type === 'secret') {
-    format = 'raw';
+  };
+  
+  if(key.extractable) {
+    var format;
+    if(key.type === 'secret') {
+      format = 'raw';
+    } else {
+      format = 'jwk';
+    }
+    return exportKey(format, key).then(function(keyData) {
+      return importKeyFallback(
+              format, keyData, key.algorithm, key.extractable, key.usages);
+    });
+    
   } else {
-    format = 'jwk';
-  }
-  return exportKey(format, key).then(function(keyData) {
-    return importKeyFallback(
-            format, keyData, key.algorithm, key.extractable, key.usages);
-  });
+    return Promise.reject(new InvalidAccessError('Key is not extractable'));
+  };
 }
 
 /**
@@ -1744,8 +1751,8 @@ var algorithmFallbackOperations = {
  */
 var methodFallbackErrors = {
   'default': ['NotSupportedError'],
-  'encrypt': [],
-  'decrypt': [],
+  'encrypt': ['Error'],
+  'decrypt': ['Error'],
   'sign': [],
   'verify': [],
   'digest': [],
@@ -3497,7 +3504,8 @@ function isJWK(obj) {
  */
 function isBufferSource(obj) {
   return global.ArrayBuffer 
-          && (obj instanceof ArrayBuffer || ArrayBuffer.isView(obj));
+          && (obj instanceof ArrayBuffer 
+            || (obj.buffer && obj.buffer instanceof ArrayBuffer));
 }
 
 /**
@@ -3510,7 +3518,7 @@ function isBufferSource(obj) {
 function getBuffer(bufferSource) {
   var buffer;
   if(!isBufferSource(bufferSource)) {
-    throw new TypeError('"bufferSource" is not of type BufferSource');
+    throw new TypeError('Data is not of type BufferSource');
   }
   if(bufferSource instanceof ArrayBuffer) {
     buffer = bufferSource;
@@ -3530,7 +3538,9 @@ function getBuffer(bufferSource) {
 function cloneBufferSource(data) {
   if(global.ArrayBuffer && data instanceof ArrayBuffer) {
     return data.slice(0, data.byteLength);
-  } else if(global.ArrayBuffer && ArrayBuffer.isView(data)) {
+    
+  } else if(global.ArrayBuffer 
+          && (data.buffer && data.buffer instanceof ArrayBuffer)) {
     return data.buffer.slice(
             data.byteOffset, (data.byteOffset + data.byteLength));
   } else {

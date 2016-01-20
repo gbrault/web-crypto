@@ -129,19 +129,26 @@ function polyToNativeCryptoKey(key) {
  * @returns {Promise} A Promise that returns the polyfill CryptoKey
  */
 function nativeToPolyCryptoKey(key) {
+  
   if(isPolyfillCryptoKey(key)) {
     return Promise.resolve(key);
-  }
-  var format;
-  if(key.type === 'secret') {
-    format = 'raw';
+  };
+  
+  if(key.extractable) {
+    var format;
+    if(key.type === 'secret') {
+      format = 'raw';
+    } else {
+      format = 'jwk';
+    }
+    return exportKey(format, key).then(function(keyData) {
+      return importKeyFallback(
+              format, keyData, key.algorithm, key.extractable, key.usages);
+    });
+    
   } else {
-    format = 'jwk';
-  }
-  return exportKey(format, key).then(function(keyData) {
-    return importKeyFallback(
-            format, keyData, key.algorithm, key.extractable, key.usages);
-  });
+    return Promise.reject(new InvalidAccessError('Key is not extractable'));
+  };
 }
 
 /**

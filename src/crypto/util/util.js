@@ -302,7 +302,8 @@ function isJWK(obj) {
  */
 function isBufferSource(obj) {
   return global.ArrayBuffer 
-          && (obj instanceof ArrayBuffer || ArrayBuffer.isView(obj));
+          && (obj instanceof ArrayBuffer 
+            || (obj.buffer && obj.buffer instanceof ArrayBuffer));
 }
 
 /**
@@ -315,7 +316,7 @@ function isBufferSource(obj) {
 function getBuffer(bufferSource) {
   var buffer;
   if(!isBufferSource(bufferSource)) {
-    throw new TypeError('"bufferSource" is not of type BufferSource');
+    throw new TypeError('Data is not of type BufferSource');
   }
   if(bufferSource instanceof ArrayBuffer) {
     buffer = bufferSource;
@@ -335,7 +336,9 @@ function getBuffer(bufferSource) {
 function cloneBufferSource(data) {
   if(global.ArrayBuffer && data instanceof ArrayBuffer) {
     return data.slice(0, data.byteLength);
-  } else if(global.ArrayBuffer && ArrayBuffer.isView(data)) {
+    
+  } else if(global.ArrayBuffer 
+          && (data.buffer && data.buffer instanceof ArrayBuffer)) {
     return data.buffer.slice(
             data.byteOffset, (data.byteOffset + data.byteLength));
   } else {

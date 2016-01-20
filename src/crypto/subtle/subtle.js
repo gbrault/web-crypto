@@ -342,8 +342,8 @@ var algorithmFallbackOperations = {
  */
 var methodFallbackErrors = {
   'default': ['NotSupportedError'],
-  'encrypt': [],
-  'decrypt': [],
+  'encrypt': ['Error'],
+  'decrypt': ['Error'],
   'sign': [],
   'verify': [],
   'digest': [],
