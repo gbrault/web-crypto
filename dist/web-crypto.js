@@ -3200,6 +3200,7 @@ exports.util.blobToBytes = blobToBytes;
 exports.util.bytesToBlob = bytesToBlob;
 exports.util.blobToBytesSync = blobToBytesSync;
 exports.util.bytesToBlobSync = bytesToBlobSync;
+exports.util.concat = concat;
 /**
  * Creates inheritance.
  * 
@@ -3481,6 +3482,31 @@ function arrayIntersect(a, b) {
   return a.filter(function(value) {
     return b.indexOf(value) !== -1;
   });
+}
+
+/**
+ * Concatenates multiple typed arrays.
+ * 
+ * @memberOf module:webcrypto.util
+ * @param {function} resultConstructor The constructor function of the
+ * resulting typed array.
+ * @param {...(module:webcrypto.ArrayBufferView|Array)} arrays The arrays that
+ * should be concatenated to a new array.
+ * @returns {module:webcrypto.ArrayBufferView} A new typed array contains the 
+ * contents of the arrays given as parameter.
+ */
+function concat(resultConstructor, arrays) {
+  var totalLength = 0;
+  for(var i = 1; i < arguments.length; i++) {
+    totalLength += arguments[i].length;
+  };
+  var result = new resultConstructor(totalLength);
+  var offset = 0;
+  for(var i = 1; i < arguments.length; i++) {
+    result.set(arguments[i], offset);
+    offset += arguments[i].length;
+  };
+  return result;
 }
 
 /**

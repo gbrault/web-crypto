@@ -14,3 +14,4 @@ exports.util.blobToBytes = blobToBytes;
 exports.util.bytesToBlob = bytesToBlob;
 exports.util.blobToBytesSync = blobToBytesSync;
 exports.util.bytesToBlobSync = bytesToBlobSync;
+exports.util.concat = concat;
