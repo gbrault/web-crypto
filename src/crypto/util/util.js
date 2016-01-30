@@ -379,7 +379,7 @@ function cloneBufferSource(data) {
  * @returns {boolean} True is value is a string, otherwise false
  */
 function isString(value) {
-  return (typeof value === 'string')
+  return (typeof value === 'string');
 }
 
 /**
