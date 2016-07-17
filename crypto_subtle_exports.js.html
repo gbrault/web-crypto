@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: crypto/subtle/exports.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,36 +17,35 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: crypto/subtle/exports.js</h1>
 
     
 
 
 
     
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
     <section>
-        <article><h1>web-crypto</h1><p>Web Cryptography API wrapper with asmCrypto fallback</p></article>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The subtle namespace contains the common cryptographic methods.&lt;br />
+ * It is the equivalent to the SubtleCrypto interface.
+ * @see {@link http://www.w3.org/TR/WebCryptoAPI/#dfn-SubtleCrypto}
+ * @memberOf module:webcrypto
+ * @namespace subtle
+ */
+exports.subtle = {};
+exports.subtle.generateKey = generateKey;
+exports.subtle.exportKey = exportKey;
+exports.subtle.importKey = importKey;
+exports.subtle.decrypt = decrypt;
+exports.subtle.encrypt = encrypt;
+exports.subtle.wrapKey = wrapKey;
+exports.subtle.unwrapKey = unwrapKey;
+exports.subtle.deriveBits = deriveBits;
+exports.subtle.deriveKey = deriveKey;
+exports.subtle.digest = digest;</code></pre>
+        </article>
     </section>
-
-
 
 
 

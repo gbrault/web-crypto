@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: crypto/util/exports.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,36 +17,34 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: crypto/util/exports.js</h1>
 
     
 
 
 
     
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
     <section>
-        <article><h1>web-crypto</h1><p>Web Cryptography API wrapper with asmCrypto fallback</p></article>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The util namespace contains some utility functions.
+ * @memberOf module:webcrypto
+ * @namespace util
+ */
+exports.util = {};
+exports.util.bytesToBase64URL = bytesToBase64URL;
+exports.util.base64URLToBytes = base64URLToBytes;
+exports.util.bytesToHex = bytesToHex;
+exports.util.hexToBytes = hexToBytes;
+exports.util.stringToBytes = stringToBytes;
+exports.util.bytesToString = bytesToString;
+exports.util.blobToBytes = blobToBytes;
+exports.util.bytesToBlob = bytesToBlob;
+exports.util.blobToBytesSync = blobToBytesSync;
+exports.util.bytesToBlobSync = bytesToBlobSync;
+exports.util.concat = concat;</code></pre>
+        </article>
     </section>
-
-
 
 
 
