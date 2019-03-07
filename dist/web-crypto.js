@@ -1114,7 +1114,7 @@ function RsaHashedKeyGenParams() {
    * 
    * @type {HashAlgorithmIdentifier}
    */
-  this.hash;
+  this.hash={}; 
 }
 extend(RsaKeyGenParams, RsaHashedKeyGenParams);
 
@@ -1134,7 +1134,7 @@ RsaHashedKeyGenParams.prototype.init = function(alg) {
     throw new TypeError(
       'RsaHashedKeyGenParms: hash: Missing or not a HashAlgorithmIdentifier');
   }
-  this.hash = alg.hash;
+  this.hash.name = alg.hash;
   return this;
 };
 
@@ -1154,7 +1154,7 @@ function RsaHashedImportParams() {
    * 
    * @type {HashAlgorithmIdentifier}
    */
-  this.hash;
+  this.hash={};
 }
 extend(Algorithm, RsaHashedImportParams);
 
@@ -1174,7 +1174,7 @@ RsaHashedImportParams.prototype.init = function(alg) {
     throw new TypeError(
       'RsaHashedImportParams: hash: Missing or not a HashAlgorithmIdentifier');
   }
-  this.hash = alg.hash;
+  this.hash.name = alg.hash;
   return this;
 };
 
@@ -1374,6 +1374,7 @@ function importKey_RSA(format, keyData, normAlgo, extractable, usages) {
 
   return new CryptoKey(keyType, false, algorithm, [], _handle);
 }
+
 /**
  * Generates a digest from the hash function and data given as parameters.
  * @see {@link http://www.w3.org/TR/WebCryptoAPI/#sha}
@@ -3564,7 +3565,8 @@ function getBuffer(bufferSource) {
 function cloneBufferSource(data) {
   if(global.ArrayBuffer && data instanceof ArrayBuffer) {
     return data.slice(0, data.byteLength);
-    
+  } else if(global.Uint8Array && data instanceof Uint8Array){
+      return data.slice(0, data.byteLength);
   } else if(global.ArrayBuffer 
           && (data.buffer && data.buffer instanceof ArrayBuffer)) {
     return data.buffer.slice(
@@ -3686,6 +3688,7 @@ function isPolyfillCryptoKey(key) {
   };
   return isPolyKey;
 };
+
 !function() {
   if(!global.NotSupportedError) {
     function NotSupportedError(message) {

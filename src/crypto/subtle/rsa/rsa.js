@@ -67,7 +67,7 @@ function RsaHashedKeyGenParams() {
    * 
    * @type {HashAlgorithmIdentifier}
    */
-  this.hash;
+  this.hash={}; 
 }
 extend(RsaKeyGenParams, RsaHashedKeyGenParams);
 
@@ -87,7 +87,6 @@ RsaHashedKeyGenParams.prototype.init = function(alg) {
     throw new TypeError(
       'RsaHashedKeyGenParms: hash: Missing or not a HashAlgorithmIdentifier');
   }
-  this.hash={};
   this.hash.name = alg.hash;
   return this;
 };
@@ -108,7 +107,7 @@ function RsaHashedImportParams() {
    * 
    * @type {HashAlgorithmIdentifier}
    */
-  this.hash;
+  this.hash={};
 }
 extend(Algorithm, RsaHashedImportParams);
 
@@ -128,7 +127,7 @@ RsaHashedImportParams.prototype.init = function(alg) {
     throw new TypeError(
       'RsaHashedImportParams: hash: Missing or not a HashAlgorithmIdentifier');
   }
-  this.hash = alg.hash;
+  this.hash.name = alg.hash;
   return this;
 };
 
