@@ -361,7 +361,8 @@ function getBuffer(bufferSource) {
 function cloneBufferSource(data) {
   if(global.ArrayBuffer && data instanceof ArrayBuffer) {
     return data.slice(0, data.byteLength);
-    
+  } else if(global.Uint8Array && data instanceof Uint8Array){
+      return data.slice(0, data.byteLength);
   } else if(global.ArrayBuffer 
           && (data.buffer && data.buffer instanceof ArrayBuffer)) {
     return data.buffer.slice(
