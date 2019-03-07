@@ -87,6 +87,7 @@ RsaHashedKeyGenParams.prototype.init = function(alg) {
     throw new TypeError(
       'RsaHashedKeyGenParms: hash: Missing or not a HashAlgorithmIdentifier');
   }
+  this.hash={};
   this.hash.name = alg.hash;
   return this;
 };
